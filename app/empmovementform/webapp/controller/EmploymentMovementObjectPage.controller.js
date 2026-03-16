@@ -159,7 +159,12 @@ sap.ui.define([
         },
 
         onNavBack: function () {
-            this._openCancelDialog({ navBack: true });
+            var bIsEditable = this.getView().getModel("ui").getProperty("/isEditable");
+            if (bIsEditable) {
+                this._openCancelDialog({ navBack: true });
+            } else {
+                window.history.back();
+            }
         },
 
         onCancel: function () {
@@ -167,6 +172,13 @@ sap.ui.define([
         },
 
         _openCancelDialog: function (oOptions) {
+            // Safety net: never open dialog if not in edit mode
+            var bIsEditable = this.getView().getModel("ui").getProperty("/isEditable");
+            if (!bIsEditable) {
+                window.history.back();
+                return;
+            }
+
             this._oCancelDialogOptions = oOptions;
 
             if (!this._oCancelConfirmDialog) {
