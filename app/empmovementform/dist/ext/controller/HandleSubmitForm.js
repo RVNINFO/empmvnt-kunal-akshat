@@ -1,0 +1,2 @@
+sap.ui.define(["sap/m/MessageToast"],function(e){"use strict";return{handleSubmit:async function(e){const t=e.getModel();const s=e.getObject().ID;const a=t.bindContext("/acceptMovement(...)");a.setParameter("ID",s);await a.execute();sap.m.MessageToast.show("Status changed to Accepted")}}});
+//# sourceMappingURL=HandleSubmitForm.js.map

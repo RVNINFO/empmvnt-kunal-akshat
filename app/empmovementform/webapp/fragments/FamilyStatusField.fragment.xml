@@ -1,0 +1,10 @@
+<core:FragmentDefinition
+    xmlns:core="sap.ui.core"
+    xmlns:macros="sap.fe.macros">
+    <macros:Field
+        id="familyStatusMacroField"
+        metaPath="/EmploymentMovement/familyStatus_ID"
+        value="{familyStatus_ID}"
+        description="{familyStatus/name}"
+        readOnly="{= !${ui>/isEditable} }" />
+</core:FragmentDefinition>

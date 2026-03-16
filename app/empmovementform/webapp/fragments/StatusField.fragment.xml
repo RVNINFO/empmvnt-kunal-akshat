@@ -1,0 +1,10 @@
+<core:FragmentDefinition
+    xmlns:core="sap.ui.core"
+    xmlns:macros="sap.fe.macros">
+    <macros:Field
+        id="statusMacroField"
+        metaPath="/EmploymentMovement/status_code"
+        value="{status_code}"
+        description="{status/name}"
+        readOnly="true" />
+</core:FragmentDefinition>

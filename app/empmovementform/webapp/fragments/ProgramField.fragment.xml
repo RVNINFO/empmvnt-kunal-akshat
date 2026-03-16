@@ -1,0 +1,10 @@
+<core:FragmentDefinition
+    xmlns:core="sap.ui.core"
+    xmlns:macros="sap.fe.macros">
+    <macros:Field
+        id="programMacroField"
+        metaPath="/EmploymentMovement/program_ID"
+        value="{program_ID}"
+        description="{program/name}"
+        readOnly="{= !${ui>/isEditable} }" />
+</core:FragmentDefinition>

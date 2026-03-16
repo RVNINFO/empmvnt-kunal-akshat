@@ -1,0 +1,367 @@
+<mvc:View
+    controllerName="com.syensqo.hr.empmovementform.controller.EmploymentMovementObjectPage"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:form="sap.ui.layout.form"
+    height="100%">
+
+    <Page
+        id="employmentMovementObjectPage"
+        title="{i18n>objectPageTitle}"
+        showNavButton="true"
+        navButtonPress=".onNavBack"
+        class="sapUiContentPadding">
+
+        <content>
+            <VBox width="100%" class="sapUiMediumPadding">
+
+                <!-- General Information -->
+                <Panel headerText="General Information" expandable="true" expanded="true"
+                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
+                    <form:SimpleForm
+                        editable="{ui>/isEditable}"
+                        layout="ColumnLayout"
+                        labelSpanXL="3" labelSpanL="3" labelSpanM="4"
+                        columnsXL="2" columnsL="2" columnsM="1">
+                        <form:content>
+                            <Label text="ID" />
+                            <Input value="{ID}" editable="false" />
+
+                            <Label text="Employee" required="true" />
+                            <Input value="{employee}" editable="{ui>/isEditable}" />
+
+                            <Label text="Move Reference Number" />
+                            <Input
+                                id="moveReferenceNumberInput"
+                                value="{moveReferenceNumber}"
+                                editable="false"
+                                liveChange=".onLimitedFieldLiveChange" />
+
+                            <Label text="Status" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.StatusField"
+                                type="XML" />
+
+                            <Label text="Movement Type" required="true" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.MovementTypeField"
+                                type="XML" />
+
+                            <Label text="Policy" required="true" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.PolicyField"
+                                type="XML" />
+
+                            <Label text="Attach Business Case" />
+                            <Input value="{attachBusinessCase}" editable="{ui>/isEditable}" />
+                        </form:content>
+                    </form:SimpleForm>
+                </Panel>
+
+                <!-- Movement Details -->
+                <Panel headerText="Movement Details" expandable="true" expanded="true"
+                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
+                    <form:SimpleForm
+                        editable="{ui>/isEditable}"
+                        layout="ColumnLayout"
+                        labelSpanXL="3" labelSpanL="3" labelSpanM="4"
+                        columnsXL="2" columnsL="2" columnsM="1">
+                        <form:content>
+                            <Label text="Estimated Start Date" required="true" />
+                            <DatePicker value="{estimatedStartDate}" editable="{ui>/isEditable}" />
+
+                            <Label text="Real Start Date" />
+                            <DatePicker value="{realStartDate}" editable="{ui>/isEditable}" />
+
+                            <Label text="LoA/PY Start Date" />
+                            <DatePicker value="{loaPYStartDate}" editable="{ui>/isEditable}" />
+
+                            <Label text="Estimated EoA Date" required="true" />
+                            <DatePicker value="{estimatedEoADate}" editable="{ui>/isEditable}" />
+
+                            <Label text="Real EoA Date" />
+                            <DatePicker value="{realEoADate}" editable="{ui>/isEditable}" />
+
+                            <Label text="New End Date" required="true" />
+                            <DatePicker value="{newEndDate}" editable="{ui>/isEditable}" />
+
+                            <Label text="Desired Departure Date" required="true" />
+                            <DatePicker value="{desiredDepartureDate}" editable="{ui>/isEditable}" />
+
+                            <Label text="Program" required="true" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.ProgramField"
+                                type="XML" />
+
+                            <Label text="Phase" required="true" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.PhaseField"
+                                type="XML" />
+
+                            <Label text="Request Description" required="true" />
+                            <TextArea value="{requestDescription}" rows="4" growing="true"
+                                growingMaxLines="8" editable="{ui>/isEditable}" />
+
+                            <Label text="Tax Sensitive Roles Form Completed" required="true" />
+                            <CheckBox selected="{taxSensitiveRolesFormCompleted}"
+                                enabled="{ui>/isEditable}" />
+
+                            <Label text="HR Responsible" required="true" />
+                            <Input value="{hrResponsible}" editable="{ui>/isEditable}" />
+
+                            <Label text="Employee Can Be Contacted By External Providers"
+                                required="true" />
+                            <CheckBox selected="{employeeCanBeContactedByExternalProviders}"
+                                enabled="{ui>/isEditable}" />
+
+                            <Label text="Person Responsible In Host Company" required="true" />
+                            <Input value="{personResponsibleForCandidateInHostCompany}"
+                                editable="{ui>/isEditable}" />
+
+                            <Label text="Person Responsible In France" required="true" />
+                            <Input value="{personResponsibleForCandidateInFrance}"
+                                editable="{ui>/isEditable}" />
+                        </form:content>
+                    </form:SimpleForm>
+                </Panel>
+
+                <!-- Personal And Contact -->
+                <Panel headerText="Personal And Contact" expandable="true" expanded="true"
+                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
+                    <form:SimpleForm
+                        editable="{ui>/isEditable}"
+                        layout="ColumnLayout"
+                        labelSpanXL="3" labelSpanL="3" labelSpanM="4"
+                        columnsXL="2" columnsL="2" columnsM="1">
+                        <form:content>
+                            <Label text="Date Of Birth" required="true" />
+                            <DatePicker value="{dateOfBirth}" editable="{ui>/isEditable}" />
+
+                            <Label text="Country Of Birth" required="true" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.CountryOfBirthField"
+                                type="XML" />
+
+                            <Label text="Nationality" required="true" />
+                            <Input value="{nationality}" editable="{ui>/isEditable}" />
+
+                            <Label text="Address Line" required="true" />
+                            <Input
+                                id="addressLineInput"
+                                value="{addressLine}"
+                                editable="{ui>/isEditable}"
+                                liveChange=".onLimitedFieldLiveChange" />
+
+                            <Label text="Post Code" required="true" />
+                            <Input
+                                id="postCodeInput"
+                                value="{postCode}"
+                                editable="{ui>/isEditable}"
+                                liveChange=".onLimitedFieldLiveChange" />
+
+                            <Label text="City" required="true" />
+                            <Input
+                                id="cityInput"
+                                value="{city}"
+                                editable="{ui>/isEditable}"
+                                liveChange=".onLimitedFieldLiveChange" />
+
+                            <Label text="Country" required="true" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.CountryField"
+                                type="XML" />
+
+                            <Label text="Phone Number" required="true" />
+                            <Input value="{phoneNumber}" editable="{ui>/isEditable}" />
+
+                            <Label text="CIVI Number" required="true" />
+                            <Input value="{civiNumber}" editable="{ui>/isEditable}" />
+
+                            <Label text="Social Security Number" required="true" />
+                            <Input value="{socialSecurityNumber}" editable="{ui>/isEditable}" />
+
+                            <Label text="Passport Number" required="true" />
+                            <Input value="{passportNumber}" editable="{ui>/isEditable}" />
+
+                            <Label text="Duration" required="true" />
+                            <Input value="{duration}" type="Number" editable="{ui>/isEditable}" />
+                        </form:content>
+                    </form:SimpleForm>
+                </Panel>
+
+                <!-- V.I.E Details -->
+                <Panel headerText="V.I.E Details" expandable="true" expanded="true"
+                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
+                    <form:SimpleForm
+                        editable="{ui>/isEditable}"
+                        layout="ColumnLayout"
+                        labelSpanXL="3" labelSpanL="3" labelSpanM="4"
+                        columnsXL="2" columnsL="2" columnsM="1">
+                        <form:content>
+                            <Label text="Purpose Of Mission (FR)" required="true" />
+                            <TextArea value="{purposeOfMissionFR}" rows="3" growing="true"
+                                growingMaxLines="8" editable="{ui>/isEditable}" />
+
+                            <Label text="Position Name (FR)" required="true" />
+                            <Input value="{positionNameFR}" editable="{ui>/isEditable}" />
+
+                            <Label text="Objective Of VIE Request (FR)" />
+                            <TextArea value="{objectiveOfVIERequestFR}" rows="3" growing="true"
+                                growingMaxLines="8" editable="{ui>/isEditable}" />
+
+                            <Label text="Host Company Address" required="true" />
+                            <TextArea value="{hostCompanyAddress}" rows="2" growing="true"
+                                growingMaxLines="6" editable="{ui>/isEditable}" />
+
+                            <Label text="Host Company Phone Number" required="true" />
+                            <Input value="{hostCompanyPhoneNumber}" editable="{ui>/isEditable}" />
+
+                            <Label text="Purchase Order" required="true" />
+                            <Input value="{purchaseOrder}" editable="{ui>/isEditable}" />
+
+                            <Label text="Additional Details" />
+                            <TextArea value="{additionalDetails}" rows="3" growing="true"
+                                growingMaxLines="8" editable="{ui>/isEditable}" />
+
+                            <Label text="Attachment" />
+                            <Input value="{attachment}" editable="{ui>/isEditable}" />
+                        </form:content>
+                    </form:SimpleForm>
+                </Panel>
+
+                <!-- Family Situation -->
+                <Panel headerText="Family Situation" expandable="true" expanded="true"
+                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
+                    <form:SimpleForm
+                        editable="{ui>/isEditable}"
+                        layout="ColumnLayout"
+                        labelSpanXL="3" labelSpanL="3" labelSpanM="4"
+                        columnsXL="2" columnsL="2" columnsM="1">
+                        <form:content>
+                            <Label text="Number Of Dependents" required="true" />
+                            <Input value="{numberOfDependents}" type="Number"
+                                editable="{ui>/isEditable}" />
+
+                            <Label text="Number Of Children" required="true" />
+                            <Input value="{numberOfChildren}" type="Number"
+                                editable="{ui>/isEditable}" />
+
+                            <Label text="Family Status" required="true" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.FamilyStatusField"
+                                type="XML" />
+
+                            <Label text="Partner Employment" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.PartnerEmploymentField"
+                                type="XML" />
+
+                            <Label text="Partner Syensqo User ID" />
+                            <Input value="{partnerSyensqoUserId}" editable="{ui>/isEditable}" />
+                        </form:content>
+                    </form:SimpleForm>
+                </Panel>
+
+                <!-- Home Country Details -->
+                <Panel headerText="Home Country Details" expandable="true" expanded="true"
+                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
+                    <form:SimpleForm
+                        editable="{ui>/isEditable}"
+                        layout="ColumnLayout"
+                        labelSpanXL="3" labelSpanL="3" labelSpanM="4"
+                        columnsXL="2" columnsL="2" columnsM="1">
+                        <form:content>
+                            <Label text="Home User ID" />
+                            <Input value="{homeUserId}" editable="false" />
+
+                            <Label text="Home Country" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.HomeCountryField"
+                                type="XML" />
+
+                            <Label text="Home Position" />
+                            <Input value="{homePosition}" editable="false" />
+
+                            <Label text="Home Company" />
+                            <Input value="{homeCompany}" editable="false" />
+
+                            <Label text="Home Site" />
+                            <Input value="{homeSite}" editable="false" />
+
+                            <Label text="Home Business Unit" />
+                            <Input value="{homeBusinessUnit}" editable="false" />
+
+                            <Label text="Home Cost Center" />
+                            <Input value="{homeCostCenter}" editable="false" />
+
+                            <Label text="Home Pay Grade" />
+                            <Input value="{homePayGrade}" editable="false" />
+
+                            <Label text="Home Company Car" required="true" />
+                            <CheckBox selected="{homeCompanyCar}" enabled="{ui>/isEditable}" />
+                        </form:content>
+                    </form:SimpleForm>
+                </Panel>
+
+                <!-- Host Country Details -->
+                <Panel headerText="Host Country Details" expandable="true" expanded="true"
+                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
+                    <form:SimpleForm
+                        editable="{ui>/isEditable}"
+                        layout="ColumnLayout"
+                        labelSpanXL="3" labelSpanL="3" labelSpanM="4"
+                        columnsXL="2" columnsL="2" columnsM="1">
+                        <form:content>
+                            <Label text="Host Country" required="true" />
+                            <core:Fragment
+                                fragmentName="com.syensqo.hr.empmovementform.fragments.HostCountryField"
+                                type="XML" />
+
+                            <Label text="Host Position" />
+                            <Input value="{hostPosition}" editable="{ui>/isEditable}" />
+
+                            <Label text="Host Company" required="true" />
+                            <Input value="{hostCompany}" editable="{ui>/isEditable}" />
+
+                            <Label text="Host Site" required="true" />
+                            <Input value="{hostSite}" editable="{ui>/isEditable}" />
+
+                            <Label text="Host Business Unit" required="true" />
+                            <Input value="{hostBusinessUnit}" editable="{ui>/isEditable}" />
+
+                            <Label text="Host Cost Center" required="true" />
+                            <Input value="{hostCostCenter}" editable="{ui>/isEditable}" />
+
+                            <Label text="Host Pay Grade" required="true" />
+                            <Input value="{hostPayGrade}" editable="{ui>/isEditable}" />
+
+                            <Label text="Host Company Car" required="true" />
+                            <CheckBox selected="{hostCompanyCar}" enabled="{ui>/isEditable}" />
+
+                            <Label text="Date Submitted" />
+                            <DatePicker value="{dateSubmitted}" editable="false" />
+                        </form:content>
+                    </form:SimpleForm>
+                </Panel>
+
+            </VBox>
+        </content>
+
+        <footer>
+            <OverflowToolbar>
+                <ToolbarSpacer />
+                <Button text="{i18n>save}" type="Emphasized" press=".onSave"
+                    visible="{ui>/isEditable}" />
+                <Button text="{i18n>edit}" type="Emphasized" press=".onEdit"
+                    visible="{= !${ui>/isEditable} }" />
+                <Button text="{i18n>cancel}" press=".onCancel"
+                    visible="{ui>/isEditable}" />
+                <Button text="{i18n>submit}" type="Attention" press=".onSubmit"
+                    visible="{= !${ui>/isEditable} }" />
+                <Button text="{i18n>cancelRequest}" type="Reject" press=".onCancelRequest"
+                    visible="{= !${ui>/isEditable} }" />
+            </OverflowToolbar>
+        </footer>
+    </Page>
+</mvc:View>

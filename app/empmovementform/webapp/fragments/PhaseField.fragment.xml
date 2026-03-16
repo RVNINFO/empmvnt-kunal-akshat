@@ -1,0 +1,10 @@
+<core:FragmentDefinition
+    xmlns:core="sap.ui.core"
+    xmlns:macros="sap.fe.macros">
+    <macros:Field
+        id="phaseMacroField"
+        metaPath="/EmploymentMovement/phase_ID"
+        value="{phase_ID}"
+        description="{phase/name}"
+        readOnly="{= !${ui>/isEditable} }" />
+</core:FragmentDefinition>
