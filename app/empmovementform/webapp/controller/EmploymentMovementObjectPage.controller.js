@@ -64,6 +64,8 @@ sap.ui.define([
 
         onInit: function () {
             PageController.prototype.onInit.apply(this, arguments);
+            this._boundPopState = this._onPopState.bind(this);
+            window.addEventListener('popstate', this._boundPopState);
 
             this.getView().setModel(
                 new JSONModel({ isEditable: false }),
@@ -86,6 +88,18 @@ sap.ui.define([
                 this._syncCharacterLimitValueStates(oObject);
 
             }.bind(this));
+        },
+
+        _onPopState: function () {
+            var bIsEditable = this.getView().getModel("ui").getProperty("/isEditable");
+            if (bIsEditable) {
+                window.history.pushState(null, '', window.location.href);
+                this._openCancelDialog({ navBack: true });
+            }
+        },
+
+        onExit: function () {
+            window.removeEventListener('popstate', this._boundPopState);
         },
 
         _getCharacterLimitConfigByControl: function (oControl) {

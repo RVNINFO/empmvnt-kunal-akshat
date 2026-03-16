@@ -11,6 +11,7 @@ service syq_empglobalmobility_srv {
         success : Boolean;
         message : String;
     };
+    action clearMyDrafts() returns Boolean;
 }
 
 annotate syq_empglobalmobility_srv.EmploymentMovement with @odata.draft.enabled;

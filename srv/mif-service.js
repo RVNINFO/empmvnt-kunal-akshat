@@ -26,6 +26,33 @@ module.exports = class syq_events_handler_srv extends cds.ApplicationService {
       req.data.status_code = '1'
     })
 
+    this.before('READ', 'EmploymentMovement', (req) => {
+      const isListQuery = !req.params || req.params.length === 0;
+      if (isListQuery) {
+        req.query.where({ status_code: { '!=': null } });
+      }
+    });
+
+    this.on('clearMyDrafts', async (req) => {
+      const { EmploymentMovement } = this.entities;
+      const user = req.user.id;
+
+      // get DraftUUIDs belonging to current user
+      const adminData = await SELECT
+        .from('DRAFT.DraftAdministrativeData')
+        .where({ CreatedByUser: user });
+
+      if (adminData.length === 0) return true;
+
+      const draftUUIDs = adminData.map(d => d.DraftUUID);
+
+      await DELETE
+        .from(EmploymentMovement.drafts)
+        .where({ DraftAdministrativeData_DraftUUID: { in: draftUUIDs } });
+
+      return true;
+    });
+
     this.on('acceptMovement', async (req) => {
       const { ID } = req.data
       const affected = await UPDATE(EmploymentMovement)

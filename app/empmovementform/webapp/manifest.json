@@ -137,7 +137,7 @@
                   }
                 }
               },
-              "initialLoad": "Enabled"
+              "initialLoad": "Disabled"
             }
           }
         },
@@ -151,6 +151,15 @@
               "viewName": "com.syensqo.hr.empmovementform.view.EmploymentMovementObjectPage",
               "contextPath": "/EmploymentMovement"
             }
+          }
+        }
+      }
+    },
+    "extends": {
+      "extensions": {
+        "sap.ui.controllerExtensions": {
+          "sap.fe.templates.ListReport.ListReportController": {
+            "controllerName": "com.syensqo.hr.empmovementform.ext.controller.ListReportPageControllerExtension"
           }
         }
       }
