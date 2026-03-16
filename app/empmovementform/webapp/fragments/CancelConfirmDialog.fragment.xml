@@ -1,0 +1,29 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        id="cancelConfirmDialog"
+        title="Discard Changes"
+        type="Message"
+        state="Warning">
+
+        <content>
+            <Text text="You have unsaved changes. Are you sure you want to discard them? This action cannot be undone." />
+        </content>
+
+        <buttons>
+            <Button
+                id="discardButton"
+                text="Discard Changes"
+                type="Emphasized"
+                press=".onConfirmDiscard" />
+            <Button
+                id="keepEditingButton"
+                text="Keep Editing"
+                press=".onKeepEditing" />
+        </buttons>
+
+    </Dialog>
+
+</core:FragmentDefinition>

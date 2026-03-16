@@ -2,8 +2,9 @@ sap.ui.define([
     "sap/fe/core/PageController",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
-    "sap/m/MessageBox"
-], function (PageController, JSONModel, MessageToast, MessageBox) {
+    "sap/m/MessageBox",
+    "sap/ui/core/Fragment"
+], function (PageController, JSONModel, MessageToast, MessageBox, Fragment) {
     "use strict";
 
     const CHARACTER_LIMITS = [
@@ -158,8 +159,55 @@ sap.ui.define([
         },
 
         onNavBack: function () {
-            window.history.back();
+            this._openCancelDialog({ navBack: true });
         },
+
+        onCancel: function () {
+            this._openCancelDialog({ navBack: false });
+        },
+
+        _openCancelDialog: function (oOptions) {
+            this._oCancelDialogOptions = oOptions;
+
+            if (!this._oCancelConfirmDialog) {
+                Fragment.load({
+                    id: this.getView().getId(),
+                    name: "com.syensqo.hr.empmovementform.fragments.CancelConfirmDialog",
+                    controller: this
+                }).then(function (oDialog) {
+                    this._oCancelConfirmDialog = oDialog;
+                    this.getView().addDependent(oDialog);
+                    oDialog.open();
+                }.bind(this));
+            } else {
+                this._oCancelConfirmDialog.open();
+            }
+        },
+
+        onConfirmDiscard: async function () {
+            this._oCancelConfirmDialog.close();
+
+            var oContext = this.getView().getBindingContext();
+            if (!oContext) return;
+
+            try {
+                const oObject = await oContext.requestObject();
+                if (!oObject.IsActiveEntity) {
+                    await oContext.delete("$auto");
+                }
+
+                this.getView().getModel("ui").setProperty("/isEditable", false);
+                window.history.back();
+
+            } catch (oError) {
+                MessageBox.error("Discard failed: " + (oError && oError.message ? oError.message : oError));
+            }
+        },
+
+        onKeepEditing: function () {
+            this._oCancelConfirmDialog.close();
+        },
+
 
         onEdit: async function () {
             var oContext = this.getView().getBindingContext();
@@ -245,17 +293,6 @@ sap.ui.define([
             }.bind(this)).catch(function (oError) {
                 MessageBox.error("Save failed: " + (oError && oError.message ? oError.message : oError));
             });
-        },
-
-        onCancel: function () {
-            var oModel = this.getView().getModel();
-            var sGroupId = oModel.getUpdateGroupId ? oModel.getUpdateGroupId() : "$auto";
-            try {
-                oModel.resetChanges(sGroupId || "$auto");
-                this.getView().getModel("ui").setProperty("/isEditable", false);
-            } catch (oError) {
-                MessageBox.error("Cancel failed: " + (oError && oError.message ? oError.message : oError));
-            }
         },
 
         onCancelRequest: function () {
