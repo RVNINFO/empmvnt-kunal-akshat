@@ -176,7 +176,8 @@ sap.ui.define([
 
                     var oPayload = {
                         movementType_ID: sMovementTypeId,
-                        employee: sPersonName
+                        employee: sPersonType === 'employee' ? sPersonName : '',
+                        candidate: sPersonType === 'candidate' ? sPersonName : ''
                     };
 
                     try {

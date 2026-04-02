@@ -3,9 +3,14 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
     "sap/m/MessageBox",
-    "sap/ui/core/Fragment"
-], function (PageController, JSONModel, MessageToast, MessageBox, Fragment) {
+    "sap/ui/core/Fragment",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator"
+], function (PageController, JSONModel, MessageToast, MessageBox, Fragment, Filter, FilterOperator) {
     "use strict";
+
+    const VISIBILITY_RULES_PATH = sap.ui.require.toUrl("com/syensqo/hr/empmovementform/config/visibility-rules.json");
+    const HIDDEN_BY_RULE_CLASS = "empmovementHiddenByRule";
 
     const CHARACTER_LIMITS = [
         { id: "moveReferenceNumberInput", path: "moveReferenceNumber", label: "Move Request Reference Number", limit: 8 },
@@ -15,7 +20,6 @@ sap.ui.define([
     ];
 
     const REQUIRED_FIELDS = [
-        { path: "employee", label: "Employee Name" },
         { path: "movementType_ID", label: "Movement Type" },
         { path: "policy_ID", label: "Policy" },
         { path: "estimatedStartDate", label: "Estimated Start Date" },
@@ -65,12 +69,23 @@ sap.ui.define([
         onInit: function () {
             PageController.prototype.onInit.apply(this, arguments);
             this._boundPopState = this._onPopState.bind(this);
+            this._formNameDependencyBindings = [];
+            this._formNameWatcherId = null;
+            this._lastFormNameDeps = null;
+            this._isFormNameUpdateRunning = false;
             window.addEventListener('popstate', this._boundPopState);
 
             this.getView().setModel(
                 new JSONModel({ isEditable: false }),
                 "ui"
             );
+
+            this.getView().setModel(
+                new JSONModel({ enabled: false, defaultVisible: true, fieldRules: [] }),
+                "visibility"
+            );
+
+            this._loadVisibilityRules();
 
             this.getView().attachModelContextChange(async function () {
 
@@ -86,7 +101,404 @@ sap.ui.define([
                 // draft → edit
                 this.getView().getModel("ui").setProperty("/isEditable", !bIsActive);
                 this._syncCharacterLimitValueStates(oObject);
+                this._applyVisibilityRules(oObject);
+                this._attachFormNameDependencyBindings(oContext);
+                this._startFormNameLiveWatcher(oContext);
+                await this._autoFillFormName(oContext, oObject);
+                await this._autoFillDateSubmitted(oContext, oObject);
 
+            }.bind(this));
+        },
+
+        _getTodayDateIso: function () {
+            return new Date().toISOString().slice(0, 10);
+        },
+
+        _autoFillDateSubmitted: async function (oContext, oData) {
+            if (!oContext || !oData) {
+                return;
+            }
+
+            if (oData.IsActiveEntity === false && !oData.dateSubmitted) {
+                await oContext.setProperty("dateSubmitted", this._getTodayDateIso());
+            }
+        },
+
+        _detachFormNameDependencyBindings: function () {
+            if (!Array.isArray(this._formNameDependencyBindings)) {
+                return;
+            }
+
+            this._formNameDependencyBindings.forEach(function (oBinding) {
+                if (oBinding && typeof oBinding.detachChange === "function") {
+                    oBinding.detachChange(this._onFormNameDependencyChange, this);
+                }
+                if (oBinding && typeof oBinding.destroy === "function") {
+                    oBinding.destroy();
+                }
+            }.bind(this));
+
+            this._formNameDependencyBindings = [];
+        },
+
+        _attachFormNameDependencyBindings: function (oContext) {
+            if (!oContext) {
+                return;
+            }
+
+            this._detachFormNameDependencyBindings();
+
+            var oModel = this.getView().getModel();
+            ["movementType_ID", "policy_ID"].forEach(function (sPath) {
+                var oBinding = oModel.bindProperty(sPath, oContext);
+                oBinding.attachChange(this._onFormNameDependencyChange, this);
+                this._formNameDependencyBindings.push(oBinding);
+            }.bind(this));
+
+            var oFormNameBinding = oModel.bindProperty("formName", oContext);
+            this._formNameDependencyBindings.push(oFormNameBinding);
+        },
+
+        _stopFormNameLiveWatcher: function () {
+            if (this._formNameWatcherId) {
+                clearInterval(this._formNameWatcherId);
+                this._formNameWatcherId = null;
+            }
+            this._lastFormNameDeps = null;
+        },
+
+        _startFormNameLiveWatcher: function (oContext) {
+            this._stopFormNameLiveWatcher();
+            if (!oContext) {
+                return;
+            }
+
+            this._formNameWatcherId = setInterval(async function () {
+                if (this._isFormNameUpdateRunning) {
+                    return;
+                }
+
+                var oActiveContext = this.getView().getBindingContext();
+                if (!oActiveContext || oActiveContext !== oContext) {
+                    return;
+                }
+
+                var sMovementTypeId = oActiveContext.getProperty("movementType_ID") || "";
+                var sPolicyId = oActiveContext.getProperty("policy_ID") || "";
+                var oLast = this._lastFormNameDeps || {};
+
+                if (oLast.movementType_ID === sMovementTypeId && oLast.policy_ID === sPolicyId) {
+                    return;
+                }
+
+                this._lastFormNameDeps = {
+                    movementType_ID: sMovementTypeId,
+                    policy_ID: sPolicyId
+                };
+
+                this._isFormNameUpdateRunning = true;
+                try {
+                    if (!sMovementTypeId || !sPolicyId) {
+                        if ((oActiveContext.getProperty("formName") || "") !== "") {
+                            await oActiveContext.setProperty("formName", "");
+                        }
+                        return;
+                    }
+
+                    await this._autoFillFormName(oActiveContext, {
+                        movementType_ID: sMovementTypeId,
+                        policy_ID: sPolicyId,
+                        formName: oActiveContext.getProperty("formName") || ""
+                    });
+                } finally {
+                    this._isFormNameUpdateRunning = false;
+                }
+            }.bind(this), 150);
+        },
+
+        _onFormNameDependencyChange: async function () {
+            var oContext = this.getView().getBindingContext();
+            if (!oContext) {
+                return;
+            }
+
+            if (!Array.isArray(this._formNameDependencyBindings) || this._formNameDependencyBindings.length < 2) {
+                return;
+            }
+
+            var oMovementTypeBinding = this._formNameDependencyBindings[0];
+            var oPolicyBinding = this._formNameDependencyBindings[1];
+            var oFormNameBinding = this._formNameDependencyBindings[2];
+
+            var sMovementTypeId = oMovementTypeBinding && typeof oMovementTypeBinding.getValue === "function"
+                ? oMovementTypeBinding.getValue()
+                : "";
+            var sPolicyId = oPolicyBinding && typeof oPolicyBinding.getValue === "function"
+                ? oPolicyBinding.getValue()
+                : "";
+            var sCurrentFormName = oFormNameBinding && typeof oFormNameBinding.getValue === "function"
+                ? (oFormNameBinding.getValue() || "")
+                : "";
+
+            if (!sMovementTypeId || !sPolicyId) {
+                if (sCurrentFormName) {
+                    await oContext.setProperty("formName", "");
+                }
+                return;
+            }
+
+            try {
+                var sMovementTypeText = await this._getValueHelpTextById(sMovementTypeId);
+                var sPolicyText = await this._getValueHelpTextById(sPolicyId);
+                var sFormName = (sMovementTypeText && sPolicyText) ? (sMovementTypeText + "-" + sPolicyText) : "";
+
+                if (sCurrentFormName !== sFormName) {
+                    await oContext.setProperty("formName", sFormName);
+                }
+            } catch (oError) {
+                // Ignore lookup timing issues during value-help interaction.
+            }
+        },
+
+        _getValueHelpTextById: async function (sId) {
+            if (!sId) {
+                return "";
+            }
+
+            var oModel = this.getView().getModel();
+            var oBinding = oModel.bindList("/ValueHelp", null, null, [
+                new Filter("ID", FilterOperator.EQ, sId)
+            ]);
+            var aContexts = await oBinding.requestContexts(0, 1);
+
+            if (!aContexts || aContexts.length === 0) {
+                return "";
+            }
+
+            var oValueHelp = await aContexts[0].requestObject();
+            return oValueHelp && oValueHelp.name ? oValueHelp.name : "";
+        },
+
+        _resolveMovementTypeText: async function (oData) {
+            if (oData && oData.movementType && oData.movementType.name) {
+                return oData.movementType.name;
+            }
+            return this._getValueHelpTextById(oData && oData.movementType_ID);
+        },
+
+        _resolvePolicyText: async function (oData) {
+            if (oData && oData.policy && oData.policy.name) {
+                return oData.policy.name;
+            }
+            return this._getValueHelpTextById(oData && oData.policy_ID);
+        },
+
+        _autoFillFormName: async function (oContext, oData) {
+            if (!oContext || !oData) {
+                return;
+            }
+
+            try {
+                var sMovementTypeText = await this._resolveMovementTypeText(oData);
+                var sPolicyText = await this._resolvePolicyText(oData);
+                var sFormName = (sMovementTypeText && sPolicyText) ? (sMovementTypeText + "-" + sPolicyText) : "";
+
+                if ((oData.formName || "") !== sFormName) {
+                    await oContext.setProperty("formName", sFormName);
+                }
+            } catch (oError) {
+                // Keep page functional if lookup fails; formName can be recalculated later.
+            }
+        },
+
+        _loadVisibilityRules: function () {
+            var oVisibilityModel = this.getView().getModel("visibility");
+            oVisibilityModel.attachRequestCompleted(function () {
+                var oContext = this.getView().getBindingContext();
+                if (!oContext) {
+                    return;
+                }
+
+                oContext.requestObject().then(function (oData) {
+                    if (oData) {
+                        this._applyVisibilityRules(oData);
+                    }
+                }.bind(this));
+            }.bind(this));
+
+            oVisibilityModel.loadData(VISIBILITY_RULES_PATH, null, true);
+        },
+
+        _extractFieldPathFromControl: function (oControl) {
+            var aProperties = ["value", "selectedKey", "selected", "dateValue", "text"];
+
+            for (var i = 0; i < aProperties.length; i++) {
+                var oBindingInfo = oControl.getBindingInfo && oControl.getBindingInfo(aProperties[i]);
+                if (!oBindingInfo) {
+                    continue;
+                }
+
+                var sPath = oBindingInfo.path;
+                if (!sPath && oBindingInfo.parts && oBindingInfo.parts.length > 0) {
+                    sPath = oBindingInfo.parts[0].path;
+                }
+
+                if (sPath) {
+                    return sPath.replace(/^\//, "");
+                }
+            }
+
+            return null;
+        },
+
+        _getRuleValue: function (oData, sPath) {
+            if (!oData || !sPath) {
+                return undefined;
+            }
+
+            if (Object.prototype.hasOwnProperty.call(oData, sPath)) {
+                return oData[sPath];
+            }
+
+            var aParts = sPath.split("/");
+            var oCursor = oData;
+            for (var i = 0; i < aParts.length; i++) {
+                if (!oCursor || !Object.prototype.hasOwnProperty.call(oCursor, aParts[i])) {
+                    return undefined;
+                }
+                oCursor = oCursor[aParts[i]];
+            }
+            return oCursor;
+        },
+
+        _evaluateCondition: function (oCondition, oData) {
+            if (!oCondition || !oCondition.path || !oCondition.operator) {
+                return true;
+            }
+
+            var vActual = this._getRuleValue(oData, oCondition.path);
+            var vExpected = oCondition.value;
+            var sOperator = String(oCondition.operator).toUpperCase();
+
+            switch (sOperator) {
+                case "EQ":
+                    return vActual === vExpected;
+                case "NE":
+                    return vActual !== vExpected;
+                case "IN":
+                    return Array.isArray(vExpected) && vExpected.indexOf(vActual) !== -1;
+                case "NOT_IN":
+                    return Array.isArray(vExpected) && vExpected.indexOf(vActual) === -1;
+                case "GT":
+                    return Number(vActual) > Number(vExpected);
+                case "GTE":
+                    return Number(vActual) >= Number(vExpected);
+                case "LT":
+                    return Number(vActual) < Number(vExpected);
+                case "LTE":
+                    return Number(vActual) <= Number(vExpected);
+                case "EMPTY":
+                    return vActual === null || vActual === undefined || vActual === "";
+                case "NOT_EMPTY":
+                    return !(vActual === null || vActual === undefined || vActual === "");
+                default:
+                    return true;
+            }
+        },
+
+        _evaluateRuleGroup: function (oGroup, oData) {
+            if (!oGroup) {
+                return true;
+            }
+
+            if (Array.isArray(oGroup.all)) {
+                return oGroup.all.every(function (oNode) {
+                    return this._evaluateRuleGroup(oNode, oData);
+                }.bind(this));
+            }
+
+            if (Array.isArray(oGroup.any)) {
+                return oGroup.any.some(function (oNode) {
+                    return this._evaluateRuleGroup(oNode, oData);
+                }.bind(this));
+            }
+
+            if (oGroup.not) {
+                return !this._evaluateRuleGroup(oGroup.not, oData);
+            }
+
+            return this._evaluateCondition(oGroup, oData);
+        },
+
+        _buildVisibilityMap: function (oData) {
+            var oVisibilityModel = this.getView().getModel("visibility");
+            var oRules = oVisibilityModel.getData() || {};
+            var mVisibility = {};
+
+            if (!oRules.enabled || !Array.isArray(oRules.fieldRules)) {
+                return mVisibility;
+            }
+
+            oRules.fieldRules.forEach(function (oRule) {
+                if (!oRule || !oRule.field) {
+                    return;
+                }
+                mVisibility[oRule.field] = this._evaluateRuleGroup(oRule.visibleWhen, oData);
+            }.bind(this));
+
+            return mVisibility;
+        },
+
+        _setHiddenByRuleClass: function (oControl, bHidden) {
+            if (!oControl || typeof oControl.addStyleClass !== "function" || typeof oControl.removeStyleClass !== "function") {
+                return;
+            }
+
+            if (bHidden) {
+                oControl.addStyleClass(HIDDEN_BY_RULE_CLASS);
+            } else {
+                oControl.removeStyleClass(HIDDEN_BY_RULE_CLASS);
+            }
+        },
+
+        _applyVisibilityRules: function (oData) {
+            var oVisibilityModel = this.getView().getModel("visibility");
+            var oRules = oVisibilityModel.getData() || {};
+
+            if (!oRules.enabled) {
+                return;
+            }
+
+            var mVisibility = this._buildVisibilityMap(oData);
+            var bDefaultVisible = oRules.defaultVisible !== false;
+            var aForms = this.getView().findAggregatedObjects(true, function (oControl) {
+                return oControl.isA && oControl.isA("sap.ui.layout.form.SimpleForm");
+            });
+
+            aForms.forEach(function (oForm) {
+                var aContent = oForm.getContent();
+                for (var i = 0; i < aContent.length - 1; i++) {
+                    var oLabel = aContent[i];
+                    var oField = aContent[i + 1];
+
+                    if (!oLabel || !oField || !(oLabel.isA && oLabel.isA("sap.m.Label"))) {
+                        continue;
+                    }
+
+                    var sFieldPath = this._extractFieldPathFromControl(oField);
+                    if (!sFieldPath) {
+                        continue;
+                    }
+
+                    var bVisible = Object.prototype.hasOwnProperty.call(mVisibility, sFieldPath)
+                        ? mVisibility[sFieldPath]
+                        : bDefaultVisible;
+
+                    this._setHiddenByRuleClass(oLabel, !bVisible);
+                    this._setHiddenByRuleClass(oField, !bVisible);
+
+                    i += 1;
+                }
             }.bind(this));
         },
 
@@ -99,6 +511,8 @@ sap.ui.define([
         },
 
         onExit: function () {
+            this._detachFormNameDependencyBindings();
+            this._stopFormNameLiveWatcher();
             window.removeEventListener('popstate', this._boundPopState);
         },
 
@@ -234,6 +648,46 @@ sap.ui.define([
             this._oCancelConfirmDialog.close();
         },
 
+        onDependencyFieldChange: async function (oEvent) {
+            var oSource = oEvent && oEvent.getSource && oEvent.getSource();
+            var oContext = oSource && oSource.getBindingContext && oSource.getBindingContext();
+
+            if (!oContext) {
+                oContext = this.getView().getBindingContext();
+            }
+
+            if (!oContext) {
+                return;
+            }
+
+            try {
+                var sMovementTypeId = "";
+                var sPolicyId = "";
+
+                var oMovementTypeComboBox = this.byId("movementTypeComboBox");
+                var oPolicyComboBox = this.byId("policyComboBox");
+
+                if (oMovementTypeComboBox && typeof oMovementTypeComboBox.getSelectedKey === "function") {
+                    sMovementTypeId = oMovementTypeComboBox.getSelectedKey() || "";
+                }
+
+                if (oPolicyComboBox && typeof oPolicyComboBox.getSelectedKey === "function") {
+                    sPolicyId = oPolicyComboBox.getSelectedKey() || "";
+                }
+
+                if (sMovementTypeId && sPolicyId) {
+                    await this._autoFillFormName(oContext, {
+                        movementType_ID: sMovementTypeId,
+                        policy_ID: sPolicyId,
+                        formName: oContext.getProperty("formName")
+                    });
+                } else {
+                    await oContext.setProperty("formName", "");
+                }
+            } catch (oError) {
+                // Ignore transient refresh timing during value help selection.
+            }
+        },
 
         onEdit: async function () {
             var oContext = this.getView().getBindingContext();
@@ -279,6 +733,14 @@ sap.ui.define([
             }
 
             var oData = await oContext.requestObject();
+            var sEmployeeName = (oData.employee || "").trim();
+            var sCandidateName = (oData.candidate || "").trim();
+
+            if (!sEmployeeName && !sCandidateName) {
+                MessageBox.error("Please provide either Employee Name or Candidate Name before continuing.");
+                return false;
+            }
+
             var aMissingFields = REQUIRED_FIELDS.filter(function (oField) {
                 return this._isMissingMandatoryValue(oData[oField.path], oField.type);
             }.bind(this)).map(function (oField) {

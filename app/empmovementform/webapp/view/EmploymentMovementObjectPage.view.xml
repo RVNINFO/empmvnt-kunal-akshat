@@ -28,8 +28,15 @@
                             <Label text="ID" />
                             <Input value="{ID}" editable="false" />
 
-                            <Label text="Employee" required="true" />
-                            <Input value="{employee}" editable="{ui>/isEditable}" />
+                            <Label text="Employee" required="{= !!${employee} }"
+                                visible="{= !!${employee} }" />
+                            <Input value="{employee}" editable="{ui>/isEditable}"
+                                visible="{= !!${employee} }" />
+
+                            <Label text="Candidate" required="{= !!${candidate} }"
+                                visible="{= !!${candidate} }" />
+                            <Input value="{candidate}" editable="{ui>/isEditable}"
+                                visible="{= !!${candidate} }" />
 
                             <Label text="Move Reference Number" />
                             <Input
@@ -52,6 +59,12 @@
                             <core:Fragment
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.PolicyField"
                                 type="XML" />
+
+                            <Label text="Form Name" />
+                            <Input value="{formName}" editable="false" />
+
+                            <Label text="Date Submitted" />
+                            <DatePicker value="{dateSubmitted}" editable="false" />
 
                             <Label text="Attach Business Case" />
                             <Input value="{attachBusinessCase}" editable="{ui>/isEditable}" />
@@ -336,11 +349,12 @@
                             <Label text="Host Pay Grade" required="true" />
                             <Input value="{hostPayGrade}" editable="{ui>/isEditable}" />
 
+                            <Label text="Host Annual Salary" />
+                            <Input value="{hostAnnualSalary}" type="Number"
+                                editable="{ui>/isEditable}" />
+
                             <Label text="Host Company Car" required="true" />
                             <CheckBox selected="{hostCompanyCar}" enabled="{ui>/isEditable}" />
-
-                            <Label text="Date Submitted" />
-                            <DatePicker value="{dateSubmitted}" editable="false" />
                         </form:content>
                     </form:SimpleForm>
                 </Panel>

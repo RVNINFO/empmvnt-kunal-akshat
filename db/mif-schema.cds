@@ -12,11 +12,15 @@ using {
 entity EmploymentMovement : cuid, managed {
     // Basic Information
     employee                                   : String(100);
+    candidate                                  : String;
     moveReferenceNumber                        : String(50)               @mandatory;
     status                                     : Association to StatusVH;
     movementType                               : Association to ValueHelp @mandatory;
     policy                                     : Association to ValueHelp @mandatory;
+    formName                                   : String;
     attachBusinessCase                         : String(500); // File path or URL
+    dateSubmitted                              : Date;
+
 
     // Dates
     estimatedStartDate                         : Date                     @mandatory;
@@ -100,13 +104,11 @@ entity EmploymentMovement : cuid, managed {
     hostCostCenter                             : String(50)               @mandatory;
     hostPayGrade                               : String(20)               @mandatory;
     hostCompanyCar                             : Boolean                  @mandatory default false;
-    dateSubmitted                              : Date;
-
     hostAnnualSalary                           : Double;
-    candidate                                  : String;
+    
     cancellationReason                         : String;
-    formName                                   : String;
-    Duration                                   : String;
+    // formName                                   : String;
+    // Duration                                   : String;
 }
 
 

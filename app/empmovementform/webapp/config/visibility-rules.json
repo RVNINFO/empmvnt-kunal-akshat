@@ -1,0 +1,220 @@
+{
+  "enabled": true,
+  "defaultVisible": true,
+  "movementTypes": {
+    "newAssignment": "6372f2d3-9aff-446a-a564-060ad65b68c5",
+    "assignmentExtension": "807a58b2-5616-47f4-a231-c632e011e6b3",
+    "repatriation": "fb8c8afd-6064-4875-b897-cfaf70b76202",
+    "localisation": "6a213560-cce6-430e-9dc5-ec0be68c5739",
+    "oneWayTransfer": "ddb57cd4-6a67-4020-a116-bcacc3d1feeb",
+    "rotationalProgram": "2b46b420-d4fd-4e5e-8c29-fe09dcda8797",
+    "vie": "e9212f30-2ea0-421b-9262-774d7270ad37",
+    "adHoc": "d7014869-2c87-45a3-97a0-c2b8d927c17c"
+  },
+  "fieldRules": [
+    {
+      "field": "countryOfBirth_code",
+      "description": "Hide for New Assignment and Assignment Extension.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "6372f2d3-9aff-446a-a564-060ad65b68c5",
+          "807a58b2-5616-47f4-a231-c632e011e6b3"
+        ]
+      }
+    },
+    {
+      "field": "nationality",
+      "description": "Hide for New Assignment and Assignment Extension.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "6372f2d3-9aff-446a-a564-060ad65b68c5",
+          "807a58b2-5616-47f4-a231-c632e011e6b3"
+        ]
+      }
+    },
+    {
+      "field": "addressLine",
+      "description": "Hide for New Assignment.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NE",
+        "value": "6372f2d3-9aff-446a-a564-060ad65b68c5"
+      }
+    },
+    {
+      "field": "postCode",
+      "description": "Hide for New Assignment.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NE",
+        "value": "6372f2d3-9aff-446a-a564-060ad65b68c5"
+      }
+    },
+    {
+      "field": "numberOfDependents",
+      "description": "Hide for Repatriation, Localisation and Ad Hoc.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "fb8c8afd-6064-4875-b897-cfaf70b76202",
+          "6a213560-cce6-430e-9dc5-ec0be68c5739",
+          "d7014869-2c87-45a3-97a0-c2b8d927c17c"
+        ]
+      }
+    },
+    {
+      "field": "numberOfChildren",
+      "description": "Hide for Repatriation, Localisation and Ad Hoc.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "fb8c8afd-6064-4875-b897-cfaf70b76202",
+          "6a213560-cce6-430e-9dc5-ec0be68c5739",
+          "d7014869-2c87-45a3-97a0-c2b8d927c17c"
+        ]
+      }
+    },
+    {
+      "field": "familyStatus_ID",
+      "description": "Hide for Repatriation, Localisation and Ad Hoc.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "fb8c8afd-6064-4875-b897-cfaf70b76202",
+          "6a213560-cce6-430e-9dc5-ec0be68c5739",
+          "d7014869-2c87-45a3-97a0-c2b8d927c17c"
+        ]
+      }
+    },
+    {
+      "field": "partnerEmployment_ID",
+      "description": "Hide for Repatriation and Ad Hoc.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "fb8c8afd-6064-4875-b897-cfaf70b76202",
+          "d7014869-2c87-45a3-97a0-c2b8d927c17c"
+        ]
+      }
+    },
+    {
+      "field": "partnerSyensqoUserId",
+      "description": "Hide for Repatriation and Ad Hoc.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "fb8c8afd-6064-4875-b897-cfaf70b76202",
+          "d7014869-2c87-45a3-97a0-c2b8d927c17c"
+        ]
+      }
+    },
+    {
+      "field": "hostCountry_code",
+      "description": "Hide for One Way Transfer, Rotational Program and V.I.E.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "ddb57cd4-6a67-4020-a116-bcacc3d1feeb",
+          "2b46b420-d4fd-4e5e-8c29-fe09dcda8797",
+          "e9212f30-2ea0-421b-9262-774d7270ad37"
+        ]
+      }
+    },
+    {
+      "field": "hostPosition",
+      "description": "Hide for One Way Transfer, Rotational Program and V.I.E.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "ddb57cd4-6a67-4020-a116-bcacc3d1feeb",
+          "2b46b420-d4fd-4e5e-8c29-fe09dcda8797",
+          "e9212f30-2ea0-421b-9262-774d7270ad37"
+        ]
+      }
+    },
+    {
+      "field": "hostCompany",
+      "description": "Hide for One Way Transfer, Rotational Program and V.I.E.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "ddb57cd4-6a67-4020-a116-bcacc3d1feeb",
+          "2b46b420-d4fd-4e5e-8c29-fe09dcda8797",
+          "e9212f30-2ea0-421b-9262-774d7270ad37"
+        ]
+      }
+    },
+    {
+      "field": "hostSite",
+      "description": "Hide for One Way Transfer and Rotational Program.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "ddb57cd4-6a67-4020-a116-bcacc3d1feeb",
+          "2b46b420-d4fd-4e5e-8c29-fe09dcda8797"
+        ]
+      }
+    },
+    {
+      "field": "hostBusinessUnit",
+      "description": "Hide for One Way Transfer and Rotational Program.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NOT_IN",
+        "value": [
+          "ddb57cd4-6a67-4020-a116-bcacc3d1feeb",
+          "2b46b420-d4fd-4e5e-8c29-fe09dcda8797"
+        ]
+      }
+    },
+    {
+      "field": "hostCostCenter",
+      "description": "Hide for One Way Transfer.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NE",
+        "value": "ddb57cd4-6a67-4020-a116-bcacc3d1feeb"
+      }
+    },
+    {
+      "field": "hostPayGrade",
+      "description": "Hide for One Way Transfer.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NE",
+        "value": "ddb57cd4-6a67-4020-a116-bcacc3d1feeb"
+      }
+    },
+    {
+      "field": "hostCompanyCar",
+      "description": "Hide for One Way Transfer.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NE",
+        "value": "ddb57cd4-6a67-4020-a116-bcacc3d1feeb"
+      }
+    },
+    {
+      "field": "dateSubmitted",
+      "description": "Hide for One Way Transfer.",
+      "visibleWhen": {
+        "path": "movementType_ID",
+        "operator": "NE",
+        "value": "ddb57cd4-6a67-4020-a116-bcacc3d1feeb"
+      }
+    }
+  ]
+}

@@ -94,7 +94,11 @@
       }
     },
     "resources": {
-      "css": []
+      "css": [
+        {
+          "uri": "css/visibility-rules.css"
+        }
+      ]
     },
     "routing": {
       "config": {},
