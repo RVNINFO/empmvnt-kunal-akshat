@@ -11,7 +11,7 @@ using {
  */
 entity EmploymentMovement : cuid, managed {
     // Basic Information
-    employee                                   : String(100)              @mandatory;
+    employee                                   : String(100);
     moveReferenceNumber                        : String(50)               @mandatory;
     status                                     : Association to StatusVH;
     movementType                               : Association to ValueHelp @mandatory;
@@ -101,6 +101,12 @@ entity EmploymentMovement : cuid, managed {
     hostPayGrade                               : String(20)               @mandatory;
     hostCompanyCar                             : Boolean                  @mandatory default false;
     dateSubmitted                              : Date;
+
+    hostAnnualSalary                           : Double;
+    candidate                                  : String;
+    cancellationReason                         : String;
+    formName                                   : String;
+    Duration                                   : String;
 }
 
 

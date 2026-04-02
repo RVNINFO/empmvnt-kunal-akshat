@@ -129,10 +129,16 @@
               "controlConfiguration": {
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
-                    "type": "ResponsiveTable",
-                    "creationMode": {
-                      "name": "NewPage",
-                      "navigateToDetail": true
+                    "type": "ResponsiveTable"
+                  },
+                  "actions": {
+                    "CreateMovement": {
+                      "press": "com.syensqo.hr.empmovementform.ext.CreateMovementHandler.createMovement",
+                      "text": "{i18n>create}",
+                      "requiresSelection": false,
+                      "global": true,
+                      "visible": true,
+                      "enabled": true
                     }
                   }
                 }

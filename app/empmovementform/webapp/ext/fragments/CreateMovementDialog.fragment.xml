@@ -1,0 +1,32 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:f="sap.ui.layout.form">
+    <Dialog id="createMovementDialog" title="Create Employment Movement" draggable="true"
+        resizable="true" contentWidth="32rem">
+        <content>
+            <f:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanXL="4"
+                labelSpanL="4" labelSpanM="4" columnsXL="1" columnsL="1" columnsM="1">
+                <f:content>
+                    <Label text="Create For" required="true" />
+                    <SegmentedButton selectedKey="{dialog>/personType}">
+                        <items>
+                            <SegmentedButtonItem key="candidate" text="Candidate" />
+                            <SegmentedButtonItem key="employee" text="Employee" />
+                        </items>
+                    </SegmentedButton>
+
+                    <Label text="Candidate / Employee Name" required="true" />
+                    <Input value="{dialog>/personName}" width="100%" placeholder="Enter a name" />
+
+                    <Label text="Movement Type" required="true" />
+                    <Select id="movementTypeSelect" selectedKey="{dialog>/movementTypeId}"
+                        width="100%" />
+                </f:content>
+            </f:SimpleForm>
+        </content>
+        <beginButton>
+            <Button text="Create" type="Emphasized" press=".onConfirmCreate" />
+        </beginButton>
+        <endButton>
+            <Button text="Cancel" press=".onCancelCreate" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

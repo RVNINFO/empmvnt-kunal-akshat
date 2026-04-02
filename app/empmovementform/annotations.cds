@@ -1,6 +1,7 @@
 using syq_empglobalmobility_srv as service from '../../srv/mif-service';
 
 annotate service.EmploymentMovement with @Capabilities.DeleteRestrictions: {Deletable: false};
+annotate service.EmploymentMovement with @UI.CreateHidden: true;
 
 annotate service.EmploymentMovement with @(
     UI.FieldGroup #GeneratedGroup    : {
