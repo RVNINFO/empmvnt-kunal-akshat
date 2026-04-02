@@ -6,7 +6,7 @@ using {
 } from '@sap/cds/common';
 
 @Core.IsMediaType: true
-type MediaType : String(100);
+type MediaType        : String(100);
 
 @Core.MediaType: 'application/octet-stream'
 type AttachmentStream : LargeBinary;
@@ -115,19 +115,19 @@ entity EmploymentMovement : cuid, managed {
     hostPayGrade                               : String(20)               @mandatory;
     hostCompanyCar                             : Boolean                  @mandatory default false;
     hostAnnualSalary                           : Double;
-    
+
     cancellationReason                         : String;
-    // formName                                   : String;
-    // Duration                                   : String;
+// formName                                   : String;
+// Duration                                   : String;
 }
 
 
 entity EmploymentMovementAttachment : cuid, managed {
-    parent                                     : Association to EmploymentMovement;
-    fileName                                   : String(255)              @mandatory;
-    fileType                                   : MediaType                @mandatory;
-    file                                       : AttachmentStream         @mandatory;
-    // note                                       : String(500);
+    parent   : Association to EmploymentMovement;
+    fileName : String(255)      @mandatory;
+    fileType : MediaType        @mandatory;
+    file     : AttachmentStream @mandatory;
+// note                                       : String(500);
 }
 
 

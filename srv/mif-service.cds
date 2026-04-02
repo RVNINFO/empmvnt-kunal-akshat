@@ -1,18 +1,19 @@
 using com.globalmobily.sfapps as mif from '../db/mif-schema';
 
 service syq_empglobalmobility_srv {
-    entity EmploymentMovement as select from mif.EmploymentMovement;
+    entity EmploymentMovement           as select from mif.EmploymentMovement;
     entity EmploymentMovementAttachment as select from mif.EmploymentMovementAttachment;
-    entity StatusVH           as select from mif.StatusVH;
-    entity CountryVH          as select from mif.CountryVH;
-    entity ValueHelp          as select from mif.ValueHelp;
+    entity StatusVH                     as select from mif.StatusVH;
+    entity CountryVH                    as select from mif.CountryVH;
+    entity ValueHelp                    as select from mif.ValueHelp;
     action acceptMovement(ID: UUID);
 
     action cancelMovement(ID: UUID) returns {
         success : Boolean;
         message : String;
     };
-    action clearMyDrafts() returns Boolean;
+
+    action clearMyDrafts()          returns Boolean;
 }
 
 annotate syq_empglobalmobility_srv.EmploymentMovement with @odata.draft.enabled;

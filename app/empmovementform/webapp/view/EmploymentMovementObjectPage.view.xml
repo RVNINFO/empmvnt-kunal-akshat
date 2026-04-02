@@ -259,7 +259,8 @@
                 <Panel headerText="Attachments" expandable="true" expanded="true"
                     width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
                     <VBox width="100%" class="sapUiSmallMarginBottom">
-                        <Text text="Upload multiple files for the movement request. Each row is saved with the draft payload." />
+                        <Text
+                            text="Upload multiple files for the movement request. Each row is saved with the draft payload." />
                     </VBox>
                     <table:Table
                         id="attachmentsTable"
@@ -314,7 +315,8 @@
                                         press=".onOpenAttachment"
                                         enabled="{= !!${attachments>fileName} }" />
                                     <Text text="{attachments>fileType}" />
-                                    <Text text="{path: 'attachments>fileSize', formatter: '.formatFileSize'}" />
+                                    <Text
+                                        text="{path: 'attachments>fileSize', formatter: '.formatFileSize'}" />
                                     <Text text="{attachments>createdAt}" />
                                     <Button
                                         icon="sap-icon://delete"
