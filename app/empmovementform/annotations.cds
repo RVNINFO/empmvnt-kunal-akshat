@@ -33,52 +33,6 @@ annotate service.EmploymentMovement with @(
                 Value: realEoADate,
             },
             {
-                $Type: 'UI.DataField',
-                Label: 'New End Date',
-                Value: newEndDate,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Desired Departure Date',
-                Value: desiredDepartureDate,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Program',
-                Value: program.name,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Phase',
-                Value: phase.name,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Request Description',
-                Value: requestDescription,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Tax Sensitive Roles Form Completed',
-                Value: taxSensitiveRolesFormCompleted,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'HR Responsible',
-                Value: hrResponsible,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Employee Can Be Contacted By External Providers',
-                Value: employeeCanBeContactedByExternalProviders,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Person Responsible For Candidate In Host Company',
-                Value: personResponsibleForCandidateInHostCompany,
-            },
-            {
-                $Type: 'UI.DataField',
                 Label: 'Person Responsible For Candidate In France',
                 Value: personResponsibleForCandidateInFrance,
             },
@@ -177,11 +131,6 @@ annotate service.EmploymentMovement with @(
                 Label: 'Additional Details',
                 Value: additionalDetails,
             },
-            {
-                $Type: 'UI.DataField',
-                Label: 'Attachment',
-                Value: attachment,
-            }
         ],
     },
     UI.Facets                        : [
@@ -263,6 +212,7 @@ annotate service.EmploymentMovement with @(
             },
             {
                 $Type: 'UI.DataField',
+
                 Value: familyStatus.name,
                 Label: 'Family Status',
             },

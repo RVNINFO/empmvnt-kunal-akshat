@@ -2,6 +2,7 @@ using com.globalmobily.sfapps as mif from '../db/mif-schema';
 
 service syq_empglobalmobility_srv {
     entity EmploymentMovement as select from mif.EmploymentMovement;
+    entity EmploymentMovementAttachment as select from mif.EmploymentMovementAttachment;
     entity StatusVH           as select from mif.StatusVH;
     entity CountryVH          as select from mif.CountryVH;
     entity ValueHelp          as select from mif.ValueHelp;

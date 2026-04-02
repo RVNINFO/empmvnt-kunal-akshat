@@ -73,6 +73,7 @@ sap.ui.define([
             this._formNameWatcherId = null;
             this._lastFormNameDeps = null;
             this._isFormNameUpdateRunning = false;
+            this._attachmentsModel = new JSONModel({ items: [] });
             window.addEventListener('popstate', this._boundPopState);
 
             this.getView().setModel(
@@ -84,6 +85,8 @@ sap.ui.define([
                 new JSONModel({ enabled: false, defaultVisible: true, fieldRules: [] }),
                 "visibility"
             );
+
+            this.getView().setModel(this._attachmentsModel, "attachments");
 
             this._loadVisibilityRules();
 
@@ -106,8 +109,179 @@ sap.ui.define([
                 this._startFormNameLiveWatcher(oContext);
                 await this._autoFillFormName(oContext, oObject);
                 await this._autoFillDateSubmitted(oContext, oObject);
+                await this._syncAttachmentsFromContext(oContext, oObject);
 
             }.bind(this));
+        },
+
+        _syncAttachmentsFromContext: async function (oContext, oObject) {
+            var aAttachments = oObject && Array.isArray(oObject.attachments) ? oObject.attachments : [];
+            var sAttachmentsPayload = oObject && oObject.attachmentsPayload;
+
+            if (!aAttachments.length && !sAttachmentsPayload && oContext && typeof oContext.requestProperty === "function") {
+                try {
+                    sAttachmentsPayload = await oContext.requestProperty("attachmentsPayload");
+                } catch (oError) {
+                    sAttachmentsPayload = "";
+                }
+            }
+
+            if (!aAttachments.length && sAttachmentsPayload) {
+                try {
+                    aAttachments = JSON.parse(sAttachmentsPayload) || [];
+                } catch (oError) {
+                    aAttachments = [];
+                }
+            }
+            this._attachmentsModel.setProperty("/items", aAttachments.map(function (oAttachment) {
+                return {
+                    ID: oAttachment.ID,
+                    fileName: oAttachment.fileName || "",
+                    fileType: oAttachment.fileType || "",
+                    createdAt: oAttachment.createdAt || "",
+                    fileSize: oAttachment.fileSize || 0,
+                    fileDataUrl: oAttachment.fileDataUrl || "",
+                    source: "existing"
+                };
+            }));
+        },
+
+        _buildAttachmentsPayload: function () {
+            var aItems = this._attachmentsModel.getProperty("/items") || [];
+            return aItems.map(function (oItem) {
+                return {
+                    ID: oItem.ID,
+                    fileName: oItem.fileName,
+                    fileType: oItem.fileType,
+                    createdAt: oItem.createdAt,
+                    fileSize: oItem.fileSize,
+                    source: oItem.source
+                };
+            });
+        },
+
+        _readFileAsDataUrl: function (oFile) {
+            return new Promise(function (resolve, reject) {
+                var oReader = new FileReader();
+                oReader.onload = function (oEvent) {
+                    resolve(oEvent && oEvent.target ? oEvent.target.result : "");
+                };
+                oReader.onerror = function () {
+                    reject(new Error("Failed to read file " + (oFile && oFile.name ? oFile.name : "")));
+                };
+                oReader.readAsDataURL(oFile);
+            });
+        },
+
+        onAttachmentsSelected: async function (oEvent) {
+            var oSource = oEvent.getSource();
+            var aFiles = oEvent.getParameter("files") || [];
+
+            if (!aFiles.length && oSource) {
+                var oDomRef = oSource.getDomRef && oSource.getDomRef();
+                if (oDomRef && oDomRef.files) {
+                    aFiles = Array.prototype.slice.call(oDomRef.files);
+                }
+            }
+
+            if (!aFiles.length) {
+                return;
+            }
+
+            var aItems = this._attachmentsModel.getProperty("/items") || [];
+
+            for (var i = 0; i < aFiles.length; i++) {
+                var oFile = aFiles[i];
+                var sDataUrl = await this._readFileAsDataUrl(oFile);
+
+                aItems.push({
+                    ID: "tmp-" + Date.now() + "-" + i,
+                    fileName: oFile.name,
+                    fileType: oFile.type || "application/octet-stream",
+                    fileSize: oFile.size || 0,
+                    createdAt: new Date().toISOString(),
+                    fileDataUrl: sDataUrl,
+                    source: "local"
+                });
+            }
+
+            this._attachmentsModel.setProperty("/items", aItems);
+
+            if (oSource && typeof oSource.setValue === "function") {
+                oSource.setValue("");
+            }
+
+            MessageToast.show(aFiles.length + " file(s) added to the attachment table.");
+        },
+
+        formatAttachmentPreviewSrc: function (sDataUrl) {
+            return sDataUrl || "";
+        },
+
+        formatAttachmentPreviewIcon: function (sMimeType) {
+            if (!sMimeType) {
+                return "sap-icon://document-text";
+            }
+            if (sMimeType.indexOf("image/") === 0) {
+                return "sap-icon://picture";
+            }
+            if (sMimeType === "application/pdf") {
+                return "sap-icon://pdf-attachment";
+            }
+            if (sMimeType.indexOf("video/") === 0) {
+                return "sap-icon://video";
+            }
+            return "sap-icon://document-text";
+        },
+
+        formatFileSize: function (vSize) {
+            var iSize = Number(vSize) || 0;
+            if (iSize <= 0) {
+                return "-";
+            }
+            if (iSize < 1024) {
+                return iSize + " B";
+            }
+            if (iSize < 1024 * 1024) {
+                return (iSize / 1024).toFixed(1) + " KB";
+            }
+            return (iSize / (1024 * 1024)).toFixed(1) + " MB";
+        },
+
+        onOpenAttachment: function (oEvent) {
+            var oCtx = oEvent.getSource().getBindingContext("attachments");
+            var oAttachment = oCtx && oCtx.getObject ? oCtx.getObject() : null;
+
+            if (!oAttachment || !oAttachment.fileDataUrl) {
+                MessageToast.show("Preview is available for files selected in the current draft session.");
+                return;
+            }
+
+            window.open(oAttachment.fileDataUrl, "_blank", "noopener,noreferrer");
+        },
+
+        onRemoveAttachment: function (oEvent) {
+            var oCtx = oEvent.getSource().getBindingContext("attachments");
+            if (!oCtx || typeof oCtx.getPath !== "function") {
+                return;
+            }
+
+            var sPath = oCtx.getPath();
+            var aSegments = sPath.split("/");
+            var iIndex = Number(aSegments[aSegments.length - 1]);
+
+            if (Number.isNaN(iIndex)) {
+                return;
+            }
+
+            var aItems = this._attachmentsModel.getProperty("/items") || [];
+            if (iIndex < 0 || iIndex >= aItems.length) {
+                return;
+            }
+
+            aItems.splice(iIndex, 1);
+            this._attachmentsModel.setProperty("/items", aItems);
+            MessageToast.show("Attachment removed.");
         },
 
         _getTodayDateIso: function () {
@@ -757,6 +931,79 @@ sap.ui.define([
             return true;
         },
 
+        _toDateValue: function (vDate) {
+            if (!vDate) {
+                return null;
+            }
+
+            if (vDate instanceof Date) {
+                return new Date(vDate.getFullYear(), vDate.getMonth(), vDate.getDate());
+            }
+
+            if (typeof vDate === "string") {
+                var aParts = vDate.split("-");
+                if (aParts.length === 3) {
+                    var iYear = Number(aParts[0]);
+                    var iMonth = Number(aParts[1]) - 1;
+                    var iDay = Number(aParts[2]);
+                    if (!Number.isNaN(iYear) && !Number.isNaN(iMonth) && !Number.isNaN(iDay)) {
+                        return new Date(iYear, iMonth, iDay);
+                    }
+                }
+
+                var oParsed = new Date(vDate);
+                if (!Number.isNaN(oParsed.getTime())) {
+                    return new Date(oParsed.getFullYear(), oParsed.getMonth(), oParsed.getDate());
+                }
+            }
+
+            return null;
+        },
+
+        _addMonths: function (oDate, iMonths) {
+            var oResult = new Date(oDate.getTime());
+            oResult.setMonth(oResult.getMonth() + iMonths);
+            return oResult;
+        },
+
+        _validateDateLeadTimeRules: async function () {
+            var oContext = this.getView().getBindingContext();
+            if (!oContext) {
+                MessageBox.error("No context found.");
+                return false;
+            }
+
+            var oData = await oContext.requestObject();
+            var oDateSubmitted = this._toDateValue(oData.dateSubmitted);
+            var oEstimatedStartDate = this._toDateValue(oData.estimatedStartDate);
+            var oDesiredDepartureDate = this._toDateValue(oData.desiredDepartureDate);
+
+            if (!oDateSubmitted) {
+                MessageBox.error("Date Submitted is required to validate date rules.");
+                return false;
+            }
+
+            var oMinimumAllowedDate = this._addMonths(oDateSubmitted, 2);
+            var aInvalidFields = [];
+
+            if (oEstimatedStartDate && oEstimatedStartDate < oMinimumAllowedDate) {
+                aInvalidFields.push("Estimated Start Date");
+            }
+
+            if (oDesiredDepartureDate && oDesiredDepartureDate < oMinimumAllowedDate) {
+                aInvalidFields.push("Desired Departure Date");
+            }
+
+            if (aInvalidFields.length > 0) {
+                MessageBox.error(
+                    "These dates must be at least 2 months after Date Submitted:\n\n- " + aInvalidFields.join("\n- ")
+                );
+                return false;
+            }
+
+            return true;
+        },
+
         onSave: async function () {
             var oContext = this.getView().getBindingContext();
 
@@ -774,6 +1021,13 @@ sap.ui.define([
             if (!bIsValid) {
                 return;
             }
+
+            bIsValid = await this._validateDateLeadTimeRules();
+            if (!bIsValid) {
+                return;
+            }
+
+            await oContext.setProperty("attachmentsPayload", JSON.stringify(this._buildAttachmentsPayload()));
 
             this.editFlow.saveDocument(oContext).then(function () {
                 MessageToast.show("Record saved successfully");
@@ -817,6 +1071,11 @@ sap.ui.define([
                 }
 
                 bIsValid = await this._validateCharacterLimits();
+                if (!bIsValid) {
+                    return;
+                }
+
+                bIsValid = await this._validateDateLeadTimeRules();
                 if (!bIsValid) {
                     return;
                 }

@@ -4,6 +4,8 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core"
     xmlns:form="sap.ui.layout.form"
+    xmlns:table="sap.m"
+    xmlns:unified="sap.ui.unified"
     height="100%">
 
     <Page
@@ -29,13 +31,17 @@
                             <Input value="{ID}" editable="false" />
 
                             <Label text="Employee" required="{= !!${employee} }"
+                                tooltip="Active Employee: Entere Employee Number"
                                 visible="{= !!${employee} }" />
                             <Input value="{employee}" editable="{ui>/isEditable}"
+                                tooltip="Active Employee: Entere Employee Number"
                                 visible="{= !!${employee} }" />
 
                             <Label text="Candidate" required="{= !!${candidate} }"
+                                tooltip="Enter Candidate ID if exists or entere candidates email."
                                 visible="{= !!${candidate} }" />
                             <Input value="{candidate}" editable="{ui>/isEditable}"
+                                tooltip="Enter Candidate ID if exists or entere candidates email."
                                 visible="{= !!${candidate} }" />
 
                             <Label text="Move Reference Number" />
@@ -55,7 +61,8 @@
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.MovementTypeField"
                                 type="XML" />
 
-                            <Label text="Policy" required="true" />
+                            <Label text="Policy" required="true"
+                                tooltip="1. New Assignment:&#10;For Leader &amp; Expert program and Explorer program (above 6 months), a business case must be submitted.&#10;2. One Way transfer:&#10;Move to another Syensqo entity in a different country with a local employment contract for an indefinite duration.&#10;Please check the full detailed policies here (https://wiki.syensqo.com/display/HWS/Global+Mobility+Process)." />
                             <core:Fragment
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.PolicyField"
                                 type="XML" />
@@ -81,20 +88,26 @@
                         labelSpanXL="3" labelSpanL="3" labelSpanM="4"
                         columnsXL="2" columnsL="2" columnsM="1">
                         <form:content>
-                            <Label text="Estimated Start Date" required="true" />
-                            <DatePicker value="{estimatedStartDate}" editable="{ui>/isEditable}" />
+                            <Label text="Estimated Start Date" required="true"
+                                tooltip="The start date must always be the first date of each month. To ensure that all requirements are met the estimated start date should not be less than at least 2 months from the submission date." />
+                            <DatePicker value="{estimatedStartDate}" editable="{ui>/isEditable}"
+                                tooltip="The start date must always be the first date of each month. To ensure that all requirements are met the estimated start date should not be less than at least 2 months from the submission date." />
 
                             <Label text="Real Start Date" />
                             <DatePicker value="{realStartDate}" editable="{ui>/isEditable}" />
 
-                            <Label text="LoA/PY Start Date" />
-                            <DatePicker value="{loaPYStartDate}" editable="{ui>/isEditable}" />
+                            <Label text="LoA/PY Start Date"
+                                tooltip="Effective hiring date" />
+                            <DatePicker value="{loaPYStartDate}" editable="{ui>/isEditable}"
+                                tooltip="Effective hiring date" />
 
                             <Label text="Estimated EoA Date" required="true" />
                             <DatePicker value="{estimatedEoADate}" editable="{ui>/isEditable}" />
 
-                            <Label text="Real EoA Date" />
-                            <DatePicker value="{realEoADate}" editable="{ui>/isEditable}" />
+                            <Label text="Real EoA Date"
+                                tooltip="Effective end of assignment date" />
+                            <DatePicker value="{realEoADate}" editable="{ui>/isEditable}"
+                                tooltip="Effective end of assignment date" />
 
                             <Label text="New End Date" required="true" />
                             <DatePicker value="{newEndDate}" editable="{ui>/isEditable}" />
@@ -116,8 +129,10 @@
                             <TextArea value="{requestDescription}" rows="4" growing="true"
                                 growingMaxLines="8" editable="{ui>/isEditable}" />
 
-                            <Label text="Tax Sensitive Roles Form Completed" required="true" />
+                            <Label text="Tax Sensitive Roles Form Completed" required="true"
+                                tooltip="For international transfers, regardless of the reason for relocation, it is mandatory to complete this form for tax purposes (Tax Sensitive Sensitive Roles)." />
                             <CheckBox selected="{taxSensitiveRolesFormCompleted}"
+                                tooltip="For international transfers, regardless of the reason for relocation, it is mandatory to complete this form for tax purposes (Tax Sensitive Sensitive Roles)."
                                 enabled="{ui>/isEditable}" />
 
                             <Label text="HR Responsible" required="true" />
@@ -236,11 +251,81 @@
                             <Label text="Additional Details" />
                             <TextArea value="{additionalDetails}" rows="3" growing="true"
                                 growingMaxLines="8" editable="{ui>/isEditable}" />
-
-                            <Label text="Attachment" />
-                            <Input value="{attachment}" editable="{ui>/isEditable}" />
                         </form:content>
                     </form:SimpleForm>
+                </Panel>
+
+                <!-- Attachments -->
+                <Panel headerText="Attachments" expandable="true" expanded="true"
+                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
+                    <VBox width="100%" class="sapUiSmallMarginBottom">
+                        <Text text="Upload multiple files for the movement request. Each row is saved with the draft payload." />
+                    </VBox>
+                    <table:Table
+                        id="attachmentsTable"
+                        width="100%"
+                        growing="true"
+                        inset="false"
+                        sticky="ColumnHeaders"
+                        items="{attachments>/items}">
+                        <table:headerToolbar>
+                            <OverflowToolbar>
+                                <Title text="Attachments" level="H4" />
+                                <ToolbarSpacer />
+                                <unified:FileUploader
+                                    id="attachmentsFileUploader"
+                                    buttonOnly="true"
+                                    buttonText="Choose Files"
+                                    multiple="true"
+                                    change=".onAttachmentsSelected"
+                                    visible="{ui>/isEditable}" />
+                            </OverflowToolbar>
+                        </table:headerToolbar>
+                        <table:columns>
+                            <table:Column width="6rem">
+                                <Text text="Preview" />
+                            </table:Column>
+                            <table:Column width="18rem">
+                                <Text text="File Name" />
+                            </table:Column>
+                            <table:Column width="12rem">
+                                <Text text="File Type" />
+                            </table:Column>
+                            <table:Column width="10rem">
+                                <Text text="File Size" />
+                            </table:Column>
+                            <table:Column width="12rem">
+                                <Text text="Created On" />
+                            </table:Column>
+                            <table:Column width="6rem" hAlign="Center">
+                                <Text text="Remove" />
+                            </table:Column>
+                        </table:columns>
+                        <table:items>
+                            <ColumnListItem>
+                                <cells>
+                                    <Avatar
+                                        displayShape="Square"
+                                        src="{path: 'attachments>fileDataUrl', formatter: '.formatAttachmentPreviewSrc'}"
+                                        fallbackIcon="{path: 'attachments>fileType', formatter: '.formatAttachmentPreviewIcon'}"
+                                        displaySize="S" />
+                                    <Link
+                                        text="{attachments>fileName}"
+                                        press=".onOpenAttachment"
+                                        enabled="{= !!${attachments>fileName} }" />
+                                    <Text text="{attachments>fileType}" />
+                                    <Text text="{path: 'attachments>fileSize', formatter: '.formatFileSize'}" />
+                                    <Text text="{attachments>createdAt}" />
+                                    <Button
+                                        icon="sap-icon://delete"
+                                        type="Transparent"
+                                        tooltip="Remove file"
+                                        press=".onRemoveAttachment"
+                                        visible="{ui>/isEditable}" />
+                                </cells>
+                            </ColumnListItem>
+                        </table:items>
+                    </table:Table>
                 </Panel>
 
                 <!-- Family Situation -->

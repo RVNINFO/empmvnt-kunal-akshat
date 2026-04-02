@@ -5,6 +5,12 @@ using {
     managed
 } from '@sap/cds/common';
 
+@Core.IsMediaType: true
+type MediaType : String(100);
+
+@Core.MediaType: 'application/octet-stream'
+type AttachmentStream : LargeBinary;
+
 /**
  * Employment Movement Entity
  * Tracks employee movements, assignments, and related information
@@ -75,7 +81,11 @@ entity EmploymentMovement : cuid, managed {
     // Purchase and Attachments
     purchaseOrder                              : String(50)               @mandatory;
     additionalDetails                          : String(2000);
-    attachment                                 : String(500); // File path or URL
+    // Attachement Section
+    attachment                                 : String(500); // Legacy single-file path, kept for CSV compatibility
+    attachmentsPayload                         : LargeString;
+    attachments                                : Composition of many EmploymentMovementAttachment
+                                                     on attachments.parent = $self;
 
     // Family Information
     numberOfDependents                         : Integer                  @mandatory;
@@ -109,6 +119,15 @@ entity EmploymentMovement : cuid, managed {
     cancellationReason                         : String;
     // formName                                   : String;
     // Duration                                   : String;
+}
+
+
+entity EmploymentMovementAttachment : cuid, managed {
+    parent                                     : Association to EmploymentMovement;
+    fileName                                   : String(255)              @mandatory;
+    fileType                                   : MediaType                @mandatory;
+    file                                       : AttachmentStream         @mandatory;
+    // note                                       : String(500);
 }
 
 
