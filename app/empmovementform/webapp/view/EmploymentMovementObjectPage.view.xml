@@ -56,16 +56,6 @@
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.StatusField"
                                 type="XML" />
 
-                            <Label text="Cancellation Reason"
-                                visible="{= !!${cancellationReason} }" />
-                            <TextArea
-                                value="{cancellationReason}"
-                                editable="false"
-                                rows="2"
-                                growing="true"
-                                growingMaxLines="6"
-                                visible="{= !!${cancellationReason} }" />
-
                             <Label text="Movement Type" required="true" />
                             <core:Fragment
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.MovementTypeField"
@@ -143,6 +133,16 @@
                             <Label text="Request Description" required="true" />
                             <TextArea value="{requestDescription}" rows="4" growing="true"
                                 growingMaxLines="8" editable="{ui>/isEditable}" />
+
+                            <Label text="Cancellation Reason"
+                                visible="{= !!${cancellationReason} }" />
+                            <TextArea
+                                value="{cancellationReason}"
+                                editable="false"
+                                rows="2"
+                                growing="true"
+                                growingMaxLines="6"
+                                visible="{= !!${cancellationReason} }" />
 
                             <Label text="Tax Sensitive Roles Form Completed" required="true"
                                 tooltip="For international transfers, regardless of the reason for relocation, it is mandatory to complete this form for tax purposes (Tax Sensitive Sensitive Roles)." />
@@ -282,10 +282,6 @@
                 <!-- Attachments -->
                 <Panel headerText="Attachments" expandable="true" expanded="true"
                     width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
-                    <VBox width="100%" class="sapUiSmallMarginBottom">
-                        <Text
-                            text="Upload multiple files for the movement request. Each row is saved with the draft payload." />
-                    </VBox>
                     <table:Table
                         id="attachmentsTable"
                         width="100%"
@@ -295,7 +291,6 @@
                         items="{attachments>/items}">
                         <table:headerToolbar>
                             <OverflowToolbar>
-                                <Title text="Attachments" level="H4" />
                                 <ToolbarSpacer />
                                 <unified:FileUploader
                                     id="attachmentsFileUploader"

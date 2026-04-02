@@ -6,5 +6,5 @@
         metaPath="/EmploymentMovement/homeCountry_code"
         value="{homeCountry_code}"
         description="{homeCountry/name}"
-        readOnly="{= !${ui>/isEditable} }" />
+        readOnly="true" />
 </core:FragmentDefinition>
