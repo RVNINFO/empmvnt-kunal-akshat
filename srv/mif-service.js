@@ -67,6 +67,13 @@ module.exports = class syq_events_handler_srv extends cds.ApplicationService {
 
     this.on('cancelMovement', async (req) => {
       const { ID } = req.data
+      const cancellationReason = typeof req.data.cancellationReason === 'string'
+        ? req.data.cancellationReason.trim()
+        : ''
+
+      if (!cancellationReason) {
+        return req.error(400, 'Cancellation reason is required')
+      }
 
       // Business rule: only Draft(1) or Submitted(2) can be cancelled
       const movement = await SELECT.one(EmploymentMovement).where({ ID })
@@ -77,7 +84,7 @@ module.exports = class syq_events_handler_srv extends cds.ApplicationService {
       }
 
       const affected = await UPDATE(EmploymentMovement)
-        .set({ status_code: '3' })
+        .set({ status_code: '3', cancellationReason })
         .where({ ID })
 
       if (!affected) return req.error(500, `Failed to cancel movement`)

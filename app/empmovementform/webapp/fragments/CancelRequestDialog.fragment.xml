@@ -1,0 +1,40 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        id="cancelRequestDialog"
+        title="Cancel Movement Request"
+        type="Message"
+        state="Warning"
+        contentWidth="32rem">
+
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <Text text="Please confirm cancellation and provide a reason. This reason will be stored with the request." />
+                <Label text="Cancellation Reason" required="true" class="sapUiSmallMarginTop" />
+                <TextArea
+                    id="cancelReasonTextArea"
+                    value="{cancelRequestDialog>/reason}"
+                    rows="5"
+                    width="100%"
+                    placeholder="Enter cancellation reason"
+                    liveChange=".onCancelReasonLiveChange" />
+            </VBox>
+        </content>
+
+        <buttons>
+            <Button
+                id="confirmCancelRequestButton"
+                text="Confirm Cancel Request"
+                type="Reject"
+                press=".onConfirmCancelRequest" />
+            <Button
+                id="keepRequestButton"
+                text="Keep Request"
+                press=".onCloseCancelRequestDialog" />
+        </buttons>
+
+    </Dialog>
+
+</core:FragmentDefinition>

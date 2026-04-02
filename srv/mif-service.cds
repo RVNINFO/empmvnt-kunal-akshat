@@ -8,7 +8,7 @@ service syq_empglobalmobility_srv {
     entity ValueHelp                    as select from mif.ValueHelp;
     action acceptMovement(ID: UUID);
 
-    action cancelMovement(ID: UUID) returns {
+    action cancelMovement(ID: UUID, cancellationReason: LargeString) returns {
         success : Boolean;
         message : String;
     };

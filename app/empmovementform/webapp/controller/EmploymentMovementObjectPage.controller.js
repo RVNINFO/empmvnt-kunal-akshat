@@ -87,6 +87,7 @@ sap.ui.define([
             );
 
             this.getView().setModel(this._attachmentsModel, "attachments");
+            this.getView().setModel(new JSONModel({ reason: "" }), "cancelRequestDialog");
 
             this._loadVisibilityRules();
 
@@ -688,6 +689,11 @@ sap.ui.define([
             this._detachFormNameDependencyBindings();
             this._stopFormNameLiveWatcher();
             window.removeEventListener('popstate', this._boundPopState);
+
+            if (this._oCancelRequestDialog) {
+                this._oCancelRequestDialog.destroy();
+                this._oCancelRequestDialog = null;
+            }
         },
 
         _getCharacterLimitConfigByControl: function (oControl) {
@@ -1039,25 +1045,63 @@ sap.ui.define([
 
         onCancelRequest: function () {
             var oContext = this.getView().getBindingContext();
-            if (!oContext) return;
+            if (!oContext) {
+                return;
+            }
 
-            MessageBox.confirm("Cancel this movement request?", {
-                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
-                emphasizedAction: MessageBox.Action.CANCEL,
-                onClose: function (sAction) {
-                    if (sAction !== MessageBox.Action.OK) return;
+            this.getView().getModel("cancelRequestDialog").setProperty("/reason", "");
 
-                    var oModel = this.getView().getModel();
-                    var oOperation = oModel.bindContext("/cancelMovement(...)");
+            if (!this._oCancelRequestDialog) {
+                Fragment.load({
+                    id: this.getView().getId(),
+                    name: "com.syensqo.hr.empmovementform.fragments.CancelRequestDialog",
+                    controller: this
+                }).then(function (oDialog) {
+                    this._oCancelRequestDialog = oDialog;
+                    this.getView().addDependent(oDialog);
+                    oDialog.open();
+                }.bind(this));
+                return;
+            }
 
-                    oOperation.setParameter("ID", oContext.getProperty("ID"));
-                    oOperation.execute("$auto").then(function () {
-                        MessageToast.show("Movement request cancelled");
-                        this.getView().getBindingContext().refresh();
-                    }.bind(this)).catch(function (oError) {
-                        MessageBox.error("Cancel failed: " + (oError.message || oError));
-                    });
-                }.bind(this)
+            this._oCancelRequestDialog.open();
+        },
+
+        onCancelReasonLiveChange: function (oEvent) {
+            var sValue = oEvent.getParameter("value") || "";
+            this.getView().getModel("cancelRequestDialog").setProperty("/reason", sValue);
+        },
+
+        onCloseCancelRequestDialog: function () {
+            if (this._oCancelRequestDialog) {
+                this._oCancelRequestDialog.close();
+            }
+            this.getView().getModel("cancelRequestDialog").setProperty("/reason", "");
+        },
+
+        onConfirmCancelRequest: function () {
+            var oContext = this.getView().getBindingContext();
+            if (!oContext) {
+                return;
+            }
+
+            var sReason = (this.getView().getModel("cancelRequestDialog").getProperty("/reason") || "").trim();
+            if (!sReason) {
+                MessageBox.error("Cancellation reason is required.");
+                return;
+            }
+
+            var oModel = this.getView().getModel();
+            var oOperation = oModel.bindContext("/cancelMovement(...)");
+
+            oOperation.setParameter("ID", oContext.getProperty("ID"));
+            oOperation.setParameter("cancellationReason", sReason);
+            oOperation.execute("$auto").then(function () {
+                this.onCloseCancelRequestDialog();
+                MessageToast.show("Movement request cancelled");
+                this.getView().getBindingContext().refresh();
+            }.bind(this)).catch(function (oError) {
+                MessageBox.error("Cancel failed: " + (oError.message || oError));
             });
         },
 
