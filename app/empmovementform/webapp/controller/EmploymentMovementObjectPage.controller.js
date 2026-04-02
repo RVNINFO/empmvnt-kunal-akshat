@@ -110,6 +110,7 @@ sap.ui.define([
                 this._startFormNameLiveWatcher(oContext);
                 await this._autoFillFormName(oContext, oObject);
                 await this._autoFillDateSubmitted(oContext, oObject);
+                this._updateDateLeadTimeConstraints(oContext, oObject);
                 await this._syncAttachmentsFromContext(oContext, oObject);
 
             }.bind(this));
@@ -972,6 +973,85 @@ sap.ui.define([
             return oResult;
         },
 
+        _getLeadTimeMinimumDate: function (oDateSubmitted) {
+            if (!oDateSubmitted) {
+                return null;
+            }
+
+            // Rule: Date Submitted + 2 months, then 1st day of the next month.
+            var oAfterTwoMonths = this._addMonths(oDateSubmitted, 2);
+            return new Date(oAfterTwoMonths.getFullYear(), oAfterTwoMonths.getMonth() + 1, 1);
+        },
+
+        _setDateFieldValidationState: function (oControl, sLabel, oSelectedDate, oMinimumAllowedDate) {
+            if (!oControl) {
+                return;
+            }
+
+            if (!oSelectedDate || !oMinimumAllowedDate) {
+                oControl.setValueState("None");
+                oControl.setValueStateText("");
+                return;
+            }
+
+            if (oSelectedDate < oMinimumAllowedDate) {
+                oControl.setValueState("Error");
+                oControl.setValueStateText(sLabel + " must be at least 2 months after Date Submitted.");
+                return;
+            }
+
+            oControl.setValueState("None");
+            oControl.setValueStateText("");
+        },
+
+        _updateDateLeadTimeConstraints: function (oContext, oData) {
+            var oEstimatedStartDatePicker = this.byId("estimatedStartDatePicker");
+            var oDesiredDepartureDatePicker = this.byId("desiredDepartureDatePicker");
+
+            if (!oEstimatedStartDatePicker && !oDesiredDepartureDatePicker) {
+                return;
+            }
+
+            var vDateSubmitted = oData && oData.dateSubmitted;
+            if (!vDateSubmitted && oContext && typeof oContext.getProperty === "function") {
+                vDateSubmitted = oContext.getProperty("dateSubmitted");
+            }
+
+            var oDateSubmitted = this._toDateValue(vDateSubmitted);
+            var oMinimumAllowedDate = this._getLeadTimeMinimumDate(oDateSubmitted);
+
+            if (oEstimatedStartDatePicker) {
+                oEstimatedStartDatePicker.setMinDate(oMinimumAllowedDate);
+                this._setDateFieldValidationState(
+                    oEstimatedStartDatePicker,
+                    "Estimated Start Date",
+                    this._toDateValue(oEstimatedStartDatePicker.getDateValue()),
+                    oMinimumAllowedDate
+                );
+            }
+
+            if (oDesiredDepartureDatePicker) {
+                oDesiredDepartureDatePicker.setMinDate(oMinimumAllowedDate);
+                this._setDateFieldValidationState(
+                    oDesiredDepartureDatePicker,
+                    "Desired Departure Date",
+                    this._toDateValue(oDesiredDepartureDatePicker.getDateValue()),
+                    oMinimumAllowedDate
+                );
+            }
+        },
+
+        onLeadTimeDateChange: function () {
+            var oContext = this.getView().getBindingContext();
+            if (!oContext) {
+                return;
+            }
+
+            this._updateDateLeadTimeConstraints(oContext, {
+                dateSubmitted: oContext.getProperty("dateSubmitted")
+            });
+        },
+
         _validateDateLeadTimeRules: async function () {
             var oContext = this.getView().getBindingContext();
             if (!oContext) {
@@ -989,7 +1069,7 @@ sap.ui.define([
                 return false;
             }
 
-            var oMinimumAllowedDate = this._addMonths(oDateSubmitted, 2);
+            var oMinimumAllowedDate = this._getLeadTimeMinimumDate(oDateSubmitted);
             var aInvalidFields = [];
 
             if (oEstimatedStartDate && oEstimatedStartDate < oMinimumAllowedDate) {
@@ -1002,7 +1082,7 @@ sap.ui.define([
 
             if (aInvalidFields.length > 0) {
                 MessageBox.error(
-                    "These dates must be at least 2 months after Date Submitted:\n\n- " + aInvalidFields.join("\n- ")
+                    "These dates must follow this rule: Date Submitted + 2 months, then 1st of next month.\n\n- " + aInvalidFields.join("\n- ")
                 );
                 return false;
             }
