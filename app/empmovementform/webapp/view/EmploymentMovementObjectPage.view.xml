@@ -71,7 +71,8 @@
                             <Input value="{formName}" editable="false" />
 
                             <Label text="Date Submitted" />
-                            <DatePicker id="dateSubmittedPicker" value="{dateSubmitted}" editable="false" />
+                            <DatePicker id="dateSubmittedPicker" value="{dateSubmitted}"
+                                editable="false" />
 
                             <Label text="Attach Business Case" />
                             <Input value="{attachBusinessCase}" editable="{ui>/isEditable}" />
@@ -90,7 +91,8 @@
                         <form:content>
                             <Label text="Estimated Start Date" required="true"
                                 tooltip="The start date must always be the first date of each month. To ensure that all requirements are met the estimated start date should not be less than at least 2 months from the submission date." />
-                            <DatePicker id="estimatedStartDatePicker" value="{estimatedStartDate}" editable="{ui>/isEditable}"
+                            <DatePicker id="estimatedStartDatePicker" value="{estimatedStartDate}"
+                                editable="{ui>/isEditable}"
                                 change=".onLeadTimeDateChange"
                                 tooltip="The start date must always be the first date of each month. To ensure that all requirements are met the estimated start date should not be less than at least 2 months from the submission date." />
 
@@ -114,7 +116,8 @@
                             <DatePicker value="{newEndDate}" editable="{ui>/isEditable}" />
 
                             <Label text="Desired Departure Date" required="true" />
-                            <DatePicker id="desiredDepartureDatePicker" value="{desiredDepartureDate}" editable="{ui>/isEditable}"
+                            <DatePicker id="desiredDepartureDatePicker"
+                                value="{desiredDepartureDate}" editable="{ui>/isEditable}"
                                 change=".onLeadTimeDateChange" />
 
                             <Label text="Program" required="true" />
