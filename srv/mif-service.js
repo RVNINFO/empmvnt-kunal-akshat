@@ -30,7 +30,36 @@ module.exports = class syq_events_handler_srv extends cds.ApplicationService {
       const isListQuery = !req.params || req.params.length === 0;
       if (isListQuery) {
         req.query.where({ status_code: { '!=': null } });
+
+        const columns = req.query && req.query.SELECT && req.query.SELECT.columns;
+        if (Array.isArray(columns) && columns.length > 0) {
+          const hasColumn = (name) => columns.some((col) => col && col.ref && col.ref[0] === name);
+          if (hasColumn('employee') && !hasColumn('candidate')) {
+            columns.push({ ref: ['candidate'] });
+          }
+        }
       }
+    });
+
+    this.after('READ', 'EmploymentMovement', (results, req) => {
+      const isListQuery = !req.params || req.params.length === 0;
+      if (!isListQuery) {
+        return;
+      }
+
+      const rows = Array.isArray(results) ? results : (results ? [results] : []);
+
+      rows.forEach((row) => {
+        if (!row) {
+          return;
+        }
+
+        const sEmployee = (row.employee || '').trim();
+        const sCandidate = (row.candidate || '').trim();
+        if (!sEmployee && sCandidate) {
+          row.employee = sCandidate;
+        }
+      });
     });
 
     this.on('clearMyDrafts', async (req) => {

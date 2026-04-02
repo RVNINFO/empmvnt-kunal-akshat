@@ -168,7 +168,7 @@ annotate service.EmploymentMovement with @(
     UI.LineItem                      : [
         {
             $Type: 'UI.DataField',
-            Label: '{i18n>EmployeeName}',
+            Label: '{i18n>Name}',
             Value: employee,
         },
         {

@@ -70,8 +70,11 @@ sap.ui.define([
             PageController.prototype.onInit.apply(this, arguments);
             this._boundPopState = this._onPopState.bind(this);
             this._formNameDependencyBindings = [];
+            this._durationRuleBindings = [];
             this._formNameWatcherId = null;
+            this._durationRuleWatcherId = null;
             this._lastFormNameDeps = null;
+            this._lastDurationRuleDeps = null;
             this._isFormNameUpdateRunning = false;
             this._attachmentsModel = new JSONModel({ items: [] });
             window.addEventListener('popstate', this._boundPopState);
@@ -105,9 +108,12 @@ sap.ui.define([
                 // draft → edit
                 this.getView().getModel("ui").setProperty("/isEditable", !bIsActive);
                 this._syncCharacterLimitValueStates(oObject);
+                this._applyDurationValueState(oObject);
                 this._applyVisibilityRules(oObject);
                 this._attachFormNameDependencyBindings(oContext);
+                this._attachDurationRuleBindings(oContext);
                 this._startFormNameLiveWatcher(oContext);
+                this._startDurationRuleWatcher(oContext);
                 await this._autoFillFormName(oContext, oObject);
                 await this._autoFillDateSubmitted(oContext, oObject);
                 this._updateDateLeadTimeConstraints(oContext, oObject);
@@ -317,6 +323,55 @@ sap.ui.define([
             this._formNameDependencyBindings = [];
         },
 
+        _detachDurationRuleBindings: function () {
+            if (!Array.isArray(this._durationRuleBindings)) {
+                return;
+            }
+
+            this._durationRuleBindings.forEach(function (oBinding) {
+                if (oBinding && typeof oBinding.detachChange === "function") {
+                    oBinding.detachChange(this._onDurationRuleDependencyChange, this);
+                }
+                if (oBinding && typeof oBinding.destroy === "function") {
+                    oBinding.destroy();
+                }
+            }.bind(this));
+
+            this._durationRuleBindings = [];
+        },
+
+        _attachDurationRuleBindings: function (oContext) {
+            if (!oContext) {
+                return;
+            }
+
+            this._detachDurationRuleBindings();
+
+            var oModel = this.getView().getModel();
+            ["duration", "hostCountry_code"].forEach(function (sPath) {
+                var oBinding = oModel.bindProperty(sPath, oContext);
+                oBinding.attachChange(this._onDurationRuleDependencyChange, this);
+                this._durationRuleBindings.push(oBinding);
+            }.bind(this));
+        },
+
+        _onDurationRuleDependencyChange: function () {
+            var oContext = this.getView().getBindingContext();
+            if (!oContext) {
+                return;
+            }
+
+            var sHostCountry = this._resolveHostCountryForRules({
+                hostCountry_code: oContext.getProperty("hostCountry_code"),
+                hostCountry: oContext.getProperty("hostCountry")
+            }, oContext);
+
+            this._applyDurationValueState({
+                duration: oContext.getProperty("duration"),
+                hostCountry_code: sHostCountry
+            });
+        },
+
         _attachFormNameDependencyBindings: function (oContext) {
             if (!oContext) {
                 return;
@@ -341,6 +396,49 @@ sap.ui.define([
                 this._formNameWatcherId = null;
             }
             this._lastFormNameDeps = null;
+        },
+
+        _stopDurationRuleWatcher: function () {
+            if (this._durationRuleWatcherId) {
+                clearInterval(this._durationRuleWatcherId);
+                this._durationRuleWatcherId = null;
+            }
+            this._lastDurationRuleDeps = null;
+        },
+
+        _startDurationRuleWatcher: function (oContext) {
+            this._stopDurationRuleWatcher();
+            if (!oContext) {
+                return;
+            }
+
+            this._durationRuleWatcherId = setInterval(function () {
+                var oActiveContext = this.getView().getBindingContext();
+                if (!oActiveContext || oActiveContext !== oContext) {
+                    return;
+                }
+
+                var sDuration = (oActiveContext.getProperty("duration") || "").toString();
+                var sHostCountry = this._resolveHostCountryForRules({
+                    hostCountry_code: oActiveContext.getProperty("hostCountry_code"),
+                    hostCountry: oActiveContext.getProperty("hostCountry")
+                }, oActiveContext);
+
+                var oLast = this._lastDurationRuleDeps || {};
+                if (oLast.duration === sDuration && oLast.hostCountry === sHostCountry) {
+                    return;
+                }
+
+                this._lastDurationRuleDeps = {
+                    duration: sDuration,
+                    hostCountry: sHostCountry
+                };
+
+                this._applyDurationValueState({
+                    duration: sDuration,
+                    hostCountry_code: sHostCountry
+                });
+            }.bind(this), 150);
         },
 
         _startFormNameLiveWatcher: function (oContext) {
@@ -688,7 +786,9 @@ sap.ui.define([
 
         onExit: function () {
             this._detachFormNameDependencyBindings();
+            this._detachDurationRuleBindings();
             this._stopFormNameLiveWatcher();
+            this._stopDurationRuleWatcher();
             window.removeEventListener('popstate', this._boundPopState);
 
             if (this._oCancelRequestDialog) {
@@ -765,6 +865,119 @@ sap.ui.define([
             }
 
             return true;
+        },
+
+        _getDurationRangeForHostCountry: function (vHostCountry) {
+            var sCode = (vHostCountry || "").toString().trim().toUpperCase();
+
+            if (
+                sCode === "US" || sCode === "USA" || sCode === "UNITED STATES" || sCode === "UNITED STATES OF AMERICA" ||
+                sCode === "CH" || sCode === "CHE" || sCode === "SWITZERLAND" ||
+                sCode.indexOf("UNITED STATES") !== -1 || sCode.indexOf("SWITZERLAND") !== -1
+            ) {
+                return { min: 6, max: 18 };
+            }
+
+            if (
+                sCode === "UK" || sCode === "GB" || sCode === "GBR" || sCode === "UNITED KINGDOM" ||
+                sCode.indexOf("UNITED KINGDOM") !== -1 || sCode.indexOf("U.K") !== -1
+            ) {
+                return { min: 6, max: 12 };
+            }
+
+            return { min: 6, max: 24 };
+        },
+
+        _resolveHostCountryForRules: function (oData, oContext) {
+            if (oData) {
+                if (oData.hostCountry_code) {
+                    return oData.hostCountry_code;
+                }
+                if (oData.hostCountry && oData.hostCountry.code) {
+                    return oData.hostCountry.code;
+                }
+                if (oData.hostCountry && oData.hostCountry.name) {
+                    return oData.hostCountry.name;
+                }
+            }
+
+            if (oContext && typeof oContext.getProperty === "function") {
+                return (
+                    oContext.getProperty("hostCountry_code") ||
+                    oContext.getProperty("hostCountry/code") ||
+                    oContext.getProperty("hostCountry/name") ||
+                    ""
+                );
+            }
+
+            return "";
+        },
+
+        _applyDurationValueState: function (oData) {
+            var oDurationInput = this.byId("durationInput");
+            if (!oDurationInput) {
+                return true;
+            }
+
+            var vDuration = oData ? oData.duration : undefined;
+            var vHostCountry = oData ? oData.hostCountry_code : undefined;
+
+            if (vDuration === null || vDuration === undefined || vDuration === "") {
+                oDurationInput.setValueState("None");
+                oDurationInput.setValueStateText("");
+                return true;
+            }
+
+            var iDuration = Number(vDuration);
+            if (Number.isNaN(iDuration)) {
+                oDurationInput.setValueState("Error");
+                oDurationInput.setValueStateText("Duration must be a valid number of months.");
+                return false;
+            }
+
+            var oRange = this._getDurationRangeForHostCountry(vHostCountry);
+            if (iDuration < oRange.min || iDuration > oRange.max) {
+                oDurationInput.setValueState("Error");
+                oDurationInput.setValueStateText(
+                    "Duration must be between " + oRange.min + " and " + oRange.max +
+                    " months for selected Host Country."
+                );
+                return false;
+            }
+
+            oDurationInput.setValueState("None");
+            oDurationInput.setValueStateText("");
+            return true;
+        },
+
+        onDurationLiveChange: async function (oEvent) {
+            var oContext = this.getView().getBindingContext();
+            var sDuration = oEvent.getParameter("value");
+            var oData = oContext && typeof oContext.requestObject === "function"
+                ? await oContext.requestObject()
+                : null;
+            var sHostCountry = this._resolveHostCountryForRules(oData, oContext);
+
+            this._applyDurationValueState({
+                duration: sDuration,
+                hostCountry_code: sHostCountry
+            });
+        },
+
+        _validateDurationRule: async function () {
+            var oContext = this.getView().getBindingContext();
+            if (!oContext) {
+                MessageBox.error("No context found.");
+                return false;
+            }
+
+            var oData = await oContext.requestObject();
+            var bValid = this._applyDurationValueState(oData);
+            if (!bValid) {
+                MessageBox.error("Please correct Duration based on selected Host Country rule.");
+            }
+
+            return bValid;
         },
 
         onNavBack: function () {
@@ -1113,6 +1326,11 @@ sap.ui.define([
                 return;
             }
 
+            bIsValid = await this._validateDurationRule();
+            if (!bIsValid) {
+                return;
+            }
+
             await oContext.setProperty("attachmentsPayload", JSON.stringify(this._buildAttachmentsPayload()));
 
             this.editFlow.saveDocument(oContext).then(function () {
@@ -1200,6 +1418,11 @@ sap.ui.define([
                 }
 
                 bIsValid = await this._validateDateLeadTimeRules();
+                if (!bIsValid) {
+                    return;
+                }
+
+                bIsValid = await this._validateDurationRule();
                 if (!bIsValid) {
                     return;
                 }

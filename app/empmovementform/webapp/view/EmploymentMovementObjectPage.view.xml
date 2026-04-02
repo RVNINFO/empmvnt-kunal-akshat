@@ -56,6 +56,16 @@
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.StatusField"
                                 type="XML" />
 
+                            <Label text="Cancellation Reason"
+                                visible="{= !!${cancellationReason} }" />
+                            <TextArea
+                                value="{cancellationReason}"
+                                editable="false"
+                                rows="2"
+                                growing="true"
+                                growingMaxLines="6"
+                                visible="{= !!${cancellationReason} }" />
+
                             <Label text="Movement Type" required="true" />
                             <core:Fragment
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.MovementTypeField"
@@ -217,8 +227,17 @@
                             <Label text="Passport Number" required="true" />
                             <Input value="{passportNumber}" editable="{ui>/isEditable}" />
 
-                            <Label text="Duration(in months)" required="true" />
-                            <Input value="{duration}" type="Number" editable="{ui>/isEditable}" />
+                            <Label
+                                text="Duration(in months)"
+                                required="true"
+                                tooltip="Duration must be between 6 and 24 months. Exceptions: Host Country US or Switzerland allows 6 to 18 months, and UK allows 6 to 12 months maximum." />
+                            <Input
+                                id="durationInput"
+                                value="{duration}"
+                                type="Number"
+                                editable="{ui>/isEditable}"
+                                tooltip="Duration must be between 6 and 24 months. Exceptions: Host Country US or Switzerland allows 6 to 18 months, and UK allows 6 to 12 months maximum."
+                                liveChange=".onDurationLiveChange" />
                         </form:content>
                     </form:SimpleForm>
                 </Panel>
