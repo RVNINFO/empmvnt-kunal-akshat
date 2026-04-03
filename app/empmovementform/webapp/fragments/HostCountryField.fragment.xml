@@ -6,5 +6,6 @@
         metaPath="/EmploymentMovement/hostCountry_code"
         value="{hostCountry_code}"
         description="{hostCountry/name}"
+        visible="{= ${visibility>/fields/hostCountry_code} !== false }"
         readOnly="{= !${ui>/isEditable} }" />
 </core:FragmentDefinition>

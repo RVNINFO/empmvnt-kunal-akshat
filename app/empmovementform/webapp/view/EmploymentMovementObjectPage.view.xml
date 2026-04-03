@@ -30,19 +30,19 @@
                             <Label text="ID" />
                             <Input value="{ID}" editable="false" />
 
-                            <Label text="Employee" required="{= !!${employee} }"
+                            <Label text="Employee" required="{= !!${path: 'employee', targetType: 'any'} }"
                                 tooltip="Active Employee: Entere Employee Number"
-                                visible="{= !!${employee} }" />
+                                visible="{= !!${path: 'employee', targetType: 'any'} }" />
                             <Input value="{employee}" editable="{ui>/isEditable}"
                                 tooltip="Active Employee: Entere Employee Number"
-                                visible="{= !!${employee} }" />
+                                visible="{= !!${path: 'employee', targetType: 'any'} }" />
 
-                            <Label text="Candidate" required="{= !!${candidate} }"
+                            <Label text="Candidate" required="{= !!${path: 'candidate', targetType: 'any'} }"
                                 tooltip="Enter Candidate ID if exists or entere candidates email."
-                                visible="{= !!${candidate} }" />
+                                visible="{= !!${path: 'candidate', targetType: 'any'} }" />
                             <Input value="{candidate}" editable="{ui>/isEditable}"
                                 tooltip="Enter Candidate ID if exists or entere candidates email."
-                                visible="{= !!${candidate} }" />
+                                visible="{= !!${path: 'candidate', targetType: 'any'} }" />
 
                             <Label text="Move Reference Number" />
                             <Input
@@ -70,9 +70,10 @@
                             <Label text="Form Name" />
                             <Input value="{formName}" editable="false" />
 
-                            <Label text="Date Submitted" />
+                            <Label text="Date Submitted" visible="{= ${visibility>/fields/dateSubmitted} !== false }" />
                             <DatePicker id="dateSubmittedPicker" value="{dateSubmitted}"
-                                editable="false" />
+                                editable="false"
+                                visible="{= ${visibility>/fields/dateSubmitted} !== false }" />
 
                             <Label text="Attach Business Case" />
                             <Input value="{attachBusinessCase}" editable="{ui>/isEditable}" />
@@ -135,14 +136,14 @@
                                 growingMaxLines="8" editable="{ui>/isEditable}" />
 
                             <Label text="Cancellation Reason"
-                                visible="{= !!${cancellationReason} }" />
+                                visible="{= !!${path: 'cancellationReason', targetType: 'any'} }" />
                             <TextArea
                                 value="{cancellationReason}"
                                 editable="false"
                                 rows="2"
                                 growing="true"
                                 growingMaxLines="6"
-                                visible="{= !!${cancellationReason} }" />
+                                visible="{= !!${path: 'cancellationReason', targetType: 'any'} }" />
 
                             <Label text="Tax Sensitive Roles Form Completed" required="true"
                                 tooltip="For international transfers, regardless of the reason for relocation, it is mandatory to complete this form for tax purposes (Tax Sensitive Sensitive Roles)." />
@@ -181,26 +182,33 @@
                             <Label text="Date Of Birth" required="true" />
                             <DatePicker value="{dateOfBirth}" editable="{ui>/isEditable}" />
 
-                            <Label text="Country Of Birth" required="true" />
+                            <Label text="Country Of Birth" required="true"
+                                visible="{= ${visibility>/fields/countryOfBirth_code} !== false }" />
                             <core:Fragment
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.CountryOfBirthField"
                                 type="XML" />
 
-                            <Label text="Nationality" required="true" />
-                            <Input value="{nationality}" editable="{ui>/isEditable}" />
+                            <Label text="Nationality" required="true"
+                                visible="{= ${visibility>/fields/nationality} !== false }" />
+                            <Input value="{nationality}" editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/nationality} !== false }" />
 
-                            <Label text="Address Line" required="true" />
+                            <Label text="Address Line" required="true"
+                                visible="{= ${visibility>/fields/addressLine} !== false }" />
                             <Input
                                 id="addressLineInput"
                                 value="{addressLine}"
                                 editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/addressLine} !== false }"
                                 liveChange=".onLimitedFieldLiveChange" />
 
-                            <Label text="Post Code" required="true" />
+                            <Label text="Post Code" required="true"
+                                visible="{= ${visibility>/fields/postCode} !== false }" />
                             <Input
                                 id="postCodeInput"
                                 value="{postCode}"
                                 editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/postCode} !== false }"
                                 liveChange=".onLimitedFieldLiveChange" />
 
                             <Label text="City" required="true" />
@@ -332,7 +340,7 @@
                                     <Link
                                         text="{attachments>fileName}"
                                         press=".onOpenAttachment"
-                                        enabled="{= !!${attachments>fileName} }" />
+                                        enabled="{= !!${path: 'attachments>fileName', targetType: 'any'} }" />
                                     <Text text="{attachments>fileType}" />
                                     <Text
                                         text="{path: 'attachments>fileSize', formatter: '.formatFileSize'}" />
@@ -358,26 +366,34 @@
                         labelSpanXL="3" labelSpanL="3" labelSpanM="4"
                         columnsXL="2" columnsL="2" columnsM="1">
                         <form:content>
-                            <Label text="Number Of Dependents" required="true" />
+                            <Label text="Number Of Dependents" required="true"
+                                visible="{= ${visibility>/fields/numberOfDependents} !== false }" />
                             <Input value="{numberOfDependents}" type="Number"
-                                editable="{ui>/isEditable}" />
+                                editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/numberOfDependents} !== false }" />
 
-                            <Label text="Number Of Children" required="true" />
+                            <Label text="Number Of Children" required="true"
+                                visible="{= ${visibility>/fields/numberOfChildren} !== false }" />
                             <Input value="{numberOfChildren}" type="Number"
-                                editable="{ui>/isEditable}" />
+                                editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/numberOfChildren} !== false }" />
 
-                            <Label text="Family Status" required="true" />
+                            <Label text="Family Status" required="true"
+                                visible="{= ${visibility>/fields/familyStatus_ID} !== false }" />
                             <core:Fragment
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.FamilyStatusField"
                                 type="XML" />
 
-                            <Label text="Partner Employment" />
+                            <Label text="Partner Employment"
+                                visible="{= ${visibility>/fields/partnerEmployment_ID} !== false }" />
                             <core:Fragment
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.PartnerEmploymentField"
                                 type="XML" />
 
-                            <Label text="Partner Syensqo User ID" />
-                            <Input value="{partnerSyensqoUserId}" editable="{ui>/isEditable}" />
+                            <Label text="Partner Syensqo User ID"
+                                visible="{= ${visibility>/fields/partnerSyensqoUserId} !== false }" />
+                            <Input value="{partnerSyensqoUserId}" editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/partnerSyensqoUserId} !== false }" />
                         </form:content>
                     </form:SimpleForm>
                 </Panel>
@@ -432,35 +448,49 @@
                         labelSpanXL="3" labelSpanL="3" labelSpanM="4"
                         columnsXL="2" columnsL="2" columnsM="1">
                         <form:content>
-                            <Label text="Host Country" required="true" />
+                            <Label text="Host Country" required="true"
+                                visible="{= ${visibility>/fields/hostCountry_code} !== false }" />
                             <core:Fragment
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.HostCountryField"
                                 type="XML" />
 
-                            <Label text="Host Position" />
-                            <Input value="{hostPosition}" editable="{ui>/isEditable}" />
+                            <Label text="Host Position" visible="{= ${visibility>/fields/hostPosition} !== false }" />
+                            <Input value="{hostPosition}" editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/hostPosition} !== false }" />
 
-                            <Label text="Host Company" required="true" />
-                            <Input value="{hostCompany}" editable="{ui>/isEditable}" />
+                            <Label text="Host Company" required="true"
+                                visible="{= ${visibility>/fields/hostCompany} !== false }" />
+                            <Input value="{hostCompany}" editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/hostCompany} !== false }" />
 
-                            <Label text="Host Site" required="true" />
-                            <Input value="{hostSite}" editable="{ui>/isEditable}" />
+                            <Label text="Host Site" required="true"
+                                visible="{= ${visibility>/fields/hostSite} !== false }" />
+                            <Input value="{hostSite}" editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/hostSite} !== false }" />
 
-                            <Label text="Host Business Unit" required="true" />
-                            <Input value="{hostBusinessUnit}" editable="{ui>/isEditable}" />
+                            <Label text="Host Business Unit" required="true"
+                                visible="{= ${visibility>/fields/hostBusinessUnit} !== false }" />
+                            <Input value="{hostBusinessUnit}" editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/hostBusinessUnit} !== false }" />
 
-                            <Label text="Host Cost Center" required="true" />
-                            <Input value="{hostCostCenter}" editable="{ui>/isEditable}" />
+                            <Label text="Host Cost Center" required="true"
+                                visible="{= ${visibility>/fields/hostCostCenter} !== false }" />
+                            <Input value="{hostCostCenter}" editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/hostCostCenter} !== false }" />
 
-                            <Label text="Host Pay Grade" required="true" />
-                            <Input value="{hostPayGrade}" editable="{ui>/isEditable}" />
+                            <Label text="Host Pay Grade" required="true"
+                                visible="{= ${visibility>/fields/hostPayGrade} !== false }" />
+                            <Input value="{hostPayGrade}" editable="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/hostPayGrade} !== false }" />
 
                             <Label text="Host Annual Salary" />
                             <Input value="{hostAnnualSalary}" type="Number"
                                 editable="{ui>/isEditable}" />
 
-                            <Label text="Host Company Car" required="true" />
-                            <CheckBox selected="{hostCompanyCar}" enabled="{ui>/isEditable}" />
+                            <Label text="Host Company Car" required="true"
+                                visible="{= ${visibility>/fields/hostCompanyCar} !== false }" />
+                            <CheckBox selected="{hostCompanyCar}" enabled="{ui>/isEditable}"
+                                visible="{= ${visibility>/fields/hostCompanyCar} !== false }" />
                         </form:content>
                     </form:SimpleForm>
                 </Panel>

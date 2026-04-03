@@ -6,5 +6,6 @@
         metaPath="/EmploymentMovement/partnerEmployment_ID"
         value="{partnerEmployment_ID}"
         description="{partnerEmployment/name}"
+        visible="{= ${visibility>/fields/partnerEmployment_ID} !== false }"
         readOnly="{= !${ui>/isEditable} }" />
 </core:FragmentDefinition>

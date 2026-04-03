@@ -6,5 +6,6 @@
         metaPath="/EmploymentMovement/countryOfBirth_code"
         value="{countryOfBirth_code}"
         description="{countryOfBirth/name}"
+        visible="{= ${visibility>/fields/countryOfBirth_code} !== false }"
         readOnly="{= !${ui>/isEditable} }" />
 </core:FragmentDefinition>

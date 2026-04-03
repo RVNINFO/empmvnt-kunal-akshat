@@ -6,5 +6,6 @@
         metaPath="/EmploymentMovement/familyStatus_ID"
         value="{familyStatus_ID}"
         description="{familyStatus/name}"
+        visible="{= ${visibility>/fields/familyStatus_ID} !== false }"
         readOnly="{= !${ui>/isEditable} }" />
 </core:FragmentDefinition>

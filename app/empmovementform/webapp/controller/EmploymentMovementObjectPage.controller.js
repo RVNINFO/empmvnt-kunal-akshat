@@ -10,7 +10,6 @@ sap.ui.define([
     "use strict";
 
     const VISIBILITY_RULES_PATH = sap.ui.require.toUrl("com/syensqo/hr/empmovementform/config/visibility-rules.json");
-    const HIDDEN_BY_RULE_CLASS = "empmovementHiddenByRule";
 
     const CHARACTER_LIMITS = [
         { id: "moveReferenceNumberInput", path: "moveReferenceNumber", label: "Move Request Reference Number", limit: 8 },
@@ -85,7 +84,7 @@ sap.ui.define([
             );
 
             this.getView().setModel(
-                new JSONModel({ enabled: false, defaultVisible: true, fieldRules: [] }),
+                new JSONModel({ enabled: false, defaultVisible: true, fieldRules: [], fields: {} }),
                 "visibility"
             );
 
@@ -496,6 +495,15 @@ sap.ui.define([
                 return;
             }
 
+            try {
+                var oData = await oContext.requestObject();
+                if (oData) {
+                    this._applyVisibilityRules(oData);
+                }
+            } catch (oError) {
+                // Ignore transient refresh timing during rule re-evaluation.
+            }
+
             if (!Array.isArray(this._formNameDependencyBindings) || this._formNameDependencyBindings.length < 2) {
                 return;
             }
@@ -723,57 +731,37 @@ sap.ui.define([
             return mVisibility;
         },
 
-        _setHiddenByRuleClass: function (oControl, bHidden) {
-            if (!oControl || typeof oControl.addStyleClass !== "function" || typeof oControl.removeStyleClass !== "function") {
-                return;
-            }
-
-            if (bHidden) {
-                oControl.addStyleClass(HIDDEN_BY_RULE_CLASS);
-            } else {
-                oControl.removeStyleClass(HIDDEN_BY_RULE_CLASS);
-            }
-        },
-
         _applyVisibilityRules: function (oData) {
             var oVisibilityModel = this.getView().getModel("visibility");
             var oRules = oVisibilityModel.getData() || {};
+            var aFieldRules = Array.isArray(oRules.fieldRules) ? oRules.fieldRules : [];
+            var mResolvedVisibility = {};
+
+            aFieldRules.forEach(function (oRule) {
+                if (oRule && oRule.field) {
+                    mResolvedVisibility[oRule.field] = true;
+                }
+            });
 
             if (!oRules.enabled) {
+                oVisibilityModel.setProperty("/fields", mResolvedVisibility);
                 return;
             }
 
             var mVisibility = this._buildVisibilityMap(oData);
             var bDefaultVisible = oRules.defaultVisible !== false;
-            var aForms = this.getView().findAggregatedObjects(true, function (oControl) {
-                return oControl.isA && oControl.isA("sap.ui.layout.form.SimpleForm");
+
+            aFieldRules.forEach(function (oRule) {
+                if (!oRule || !oRule.field) {
+                    return;
+                }
+
+                mResolvedVisibility[oRule.field] = Object.prototype.hasOwnProperty.call(mVisibility, oRule.field)
+                    ? mVisibility[oRule.field]
+                    : bDefaultVisible;
             });
 
-            aForms.forEach(function (oForm) {
-                var aContent = oForm.getContent();
-                for (var i = 0; i < aContent.length - 1; i++) {
-                    var oLabel = aContent[i];
-                    var oField = aContent[i + 1];
-
-                    if (!oLabel || !oField || !(oLabel.isA && oLabel.isA("sap.m.Label"))) {
-                        continue;
-                    }
-
-                    var sFieldPath = this._extractFieldPathFromControl(oField);
-                    if (!sFieldPath) {
-                        continue;
-                    }
-
-                    var bVisible = Object.prototype.hasOwnProperty.call(mVisibility, sFieldPath)
-                        ? mVisibility[sFieldPath]
-                        : bDefaultVisible;
-
-                    this._setHiddenByRuleClass(oLabel, !bVisible);
-                    this._setHiddenByRuleClass(oField, !bVisible);
-
-                    i += 1;
-                }
-            }.bind(this));
+            oVisibilityModel.setProperty("/fields", mResolvedVisibility);
         },
 
         _onPopState: function () {
@@ -1135,7 +1123,20 @@ sap.ui.define([
                 return false;
             }
 
+            var oVisibilityModel = this.getView().getModel("visibility");
+            var oRules = oVisibilityModel ? (oVisibilityModel.getData() || {}) : {};
+            var mVisibility = this._buildVisibilityMap(oData);
+            var bDefaultVisible = oRules.defaultVisible !== false;
+
             var aMissingFields = REQUIRED_FIELDS.filter(function (oField) {
+                var bFieldVisible = Object.prototype.hasOwnProperty.call(mVisibility, oField.path)
+                    ? mVisibility[oField.path]
+                    : bDefaultVisible;
+
+                if (!bFieldVisible) {
+                    return false;
+                }
+
                 return this._isMissingMandatoryValue(oData[oField.path], oField.type);
             }.bind(this)).map(function (oField) {
                 return oField.label;
