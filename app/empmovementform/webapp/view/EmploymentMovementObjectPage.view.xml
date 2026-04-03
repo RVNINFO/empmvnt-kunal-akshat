@@ -30,14 +30,16 @@
                             <Label text="ID" />
                             <Input value="{ID}" editable="false" />
 
-                            <Label text="Employee" required="{= !!${path: 'employee', targetType: 'any'} }"
+                            <Label text="Employee"
+                                required="{= !!${path: 'employee', targetType: 'any'} }"
                                 tooltip="Active Employee: Entere Employee Number"
                                 visible="{= !!${path: 'employee', targetType: 'any'} }" />
                             <Input value="{employee}" editable="{ui>/isEditable}"
                                 tooltip="Active Employee: Entere Employee Number"
                                 visible="{= !!${path: 'employee', targetType: 'any'} }" />
 
-                            <Label text="Candidate" required="{= !!${path: 'candidate', targetType: 'any'} }"
+                            <Label text="Candidate"
+                                required="{= !!${path: 'candidate', targetType: 'any'} }"
                                 tooltip="Enter Candidate ID if exists or entere candidates email."
                                 visible="{= !!${path: 'candidate', targetType: 'any'} }" />
                             <Input value="{candidate}" editable="{ui>/isEditable}"
@@ -70,7 +72,8 @@
                             <Label text="Form Name" />
                             <Input value="{formName}" editable="false" />
 
-                            <Label text="Date Submitted" visible="{= ${visibility>/fields/dateSubmitted} !== false }" />
+                            <Label text="Date Submitted"
+                                visible="{= ${visibility>/fields/dateSubmitted} !== false }" />
                             <DatePicker id="dateSubmittedPicker" value="{dateSubmitted}"
                                 editable="false"
                                 visible="{= ${visibility>/fields/dateSubmitted} !== false }" />
@@ -454,7 +457,8 @@
                                 fragmentName="com.syensqo.hr.empmovementform.fragments.HostCountryField"
                                 type="XML" />
 
-                            <Label text="Host Position" visible="{= ${visibility>/fields/hostPosition} !== false }" />
+                            <Label text="Host Position"
+                                visible="{= ${visibility>/fields/hostPosition} !== false }" />
                             <Input value="{hostPosition}" editable="{ui>/isEditable}"
                                 visible="{= ${visibility>/fields/hostPosition} !== false }" />
 
