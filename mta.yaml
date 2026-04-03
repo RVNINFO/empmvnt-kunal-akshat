@@ -8,7 +8,6 @@ modules:
     path: gen/srv
     requires:
       - name: syq_hr_mif-auth
-      - name: syq_hr_mif-db
     provides:
       - name: srv-api
         properties:
@@ -18,13 +17,6 @@ modules:
       instances: 1
     build-parameters:
       builder: npm-ci
-  - name: syq_hr_mif-db-deployer
-    type: hdb
-    path: gen/db
-    requires:
-      - name: syq_hr_mif-db
-    parameters:
-      buildpack: nodejs_buildpack
   - name: syq_hr_mif-destination-content
     type: com.sap.application.content
     requires:
@@ -78,8 +70,7 @@ modules:
       commands:
         - npm install
         - npm run build:cf
-      supported-platforms:
-        []
+      supported-platforms: []
 resources:
   - name: syq_hr_mif-auth
     type: org.cloudfoundry.managed-service
@@ -94,11 +85,6 @@ resources:
       path: ./xs-security.json
       service: xsuaa
       service-plan: application
-  - name: syq_hr_mif-db
-    type: com.sap.xs.hdi-container
-    parameters:
-      service: hana
-      service-plan: hdi-shared
   - name: syq_hr_mif-destination-service
     type: org.cloudfoundry.managed-service
     parameters:

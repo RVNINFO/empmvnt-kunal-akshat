@@ -165,15 +165,6 @@
           }
         }
       }
-    },
-    "extends": {
-      "extensions": {
-        "sap.ui.controllerExtensions": {
-          "sap.fe.templates.ListReport.ListReportController": {
-            "controllerName": "com.syensqo.hr.empmovementform.ext.controller.ListReportPageControllerExtension"
-          }
-        }
-      }
     }
   },
   "sap.fiori": {
