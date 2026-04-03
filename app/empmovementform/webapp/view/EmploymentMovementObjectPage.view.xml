@@ -290,76 +290,6 @@
                     </form:SimpleForm>
                 </Panel>
 
-                <!-- Attachments -->
-                <Panel headerText="Attachments" expandable="true" expanded="true"
-                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
-                    <table:Table
-                        id="attachmentsTable"
-                        width="100%"
-                        growing="true"
-                        inset="false"
-                        sticky="ColumnHeaders"
-                        items="{attachments>/items}">
-                        <table:headerToolbar>
-                            <OverflowToolbar>
-                                <ToolbarSpacer />
-                                <unified:FileUploader
-                                    id="attachmentsFileUploader"
-                                    buttonOnly="true"
-                                    buttonText="Choose Files"
-                                    multiple="true"
-                                    change=".onAttachmentsSelected"
-                                    visible="{ui>/isEditable}" />
-                            </OverflowToolbar>
-                        </table:headerToolbar>
-                        <table:columns>
-                            <table:Column width="6rem">
-                                <Text text="Preview" />
-                            </table:Column>
-                            <table:Column width="18rem">
-                                <Text text="File Name" />
-                            </table:Column>
-                            <table:Column width="12rem">
-                                <Text text="File Type" />
-                            </table:Column>
-                            <table:Column width="10rem">
-                                <Text text="File Size" />
-                            </table:Column>
-                            <table:Column width="12rem">
-                                <Text text="Created On" />
-                            </table:Column>
-                            <table:Column width="6rem" hAlign="Center">
-                                <Text text="Remove" />
-                            </table:Column>
-                        </table:columns>
-                        <table:items>
-                            <ColumnListItem>
-                                <cells>
-                                    <Avatar
-                                        displayShape="Square"
-                                        src="{path: 'attachments>fileDataUrl', formatter: '.formatAttachmentPreviewSrc'}"
-                                        fallbackIcon="{path: 'attachments>fileType', formatter: '.formatAttachmentPreviewIcon'}"
-                                        displaySize="S" />
-                                    <Link
-                                        text="{attachments>fileName}"
-                                        press=".onOpenAttachment"
-                                        enabled="{= !!${path: 'attachments>fileName', targetType: 'any'} }" />
-                                    <Text text="{attachments>fileType}" />
-                                    <Text
-                                        text="{path: 'attachments>fileSize', formatter: '.formatFileSize'}" />
-                                    <Text text="{attachments>createdAt}" />
-                                    <Button
-                                        icon="sap-icon://delete"
-                                        type="Transparent"
-                                        tooltip="Remove file"
-                                        press=".onRemoveAttachment"
-                                        visible="{ui>/isEditable}" />
-                                </cells>
-                            </ColumnListItem>
-                        </table:items>
-                    </table:Table>
-                </Panel>
-
                 <!-- Family Situation -->
                 <Panel headerText="Family Situation" expandable="true" expanded="true"
                     width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
@@ -497,6 +427,76 @@
                                 visible="{= ${visibility>/fields/hostCompanyCar} !== false }" />
                         </form:content>
                     </form:SimpleForm>
+                </Panel>
+
+                <!-- Attachments -->
+                <Panel headerText="Attachments" expandable="true" expanded="true"
+                    width="100%" class="sapUiContentPadding sapUiSmallMarginBottom">
+                    <table:Table
+                        id="attachmentsTable"
+                        width="100%"
+                        growing="true"
+                        inset="false"
+                        sticky="ColumnHeaders"
+                        items="{attachments>/items}">
+                        <table:headerToolbar>
+                            <OverflowToolbar>
+                                <ToolbarSpacer />
+                                <unified:FileUploader
+                                    id="attachmentsFileUploader"
+                                    buttonOnly="true"
+                                    buttonText="Choose Files"
+                                    multiple="true"
+                                    change=".onAttachmentsSelected"
+                                    visible="{ui>/isEditable}" />
+                            </OverflowToolbar>
+                        </table:headerToolbar>
+                        <table:columns>
+                            <table:Column width="6rem">
+                                <Text text="Preview" />
+                            </table:Column>
+                            <table:Column width="18rem">
+                                <Text text="File Name" />
+                            </table:Column>
+                            <table:Column width="12rem">
+                                <Text text="File Type" />
+                            </table:Column>
+                            <table:Column width="10rem">
+                                <Text text="File Size" />
+                            </table:Column>
+                            <table:Column width="12rem">
+                                <Text text="Created On" />
+                            </table:Column>
+                            <table:Column width="6rem" hAlign="Center">
+                                <Text text="Remove" />
+                            </table:Column>
+                        </table:columns>
+                        <table:items>
+                            <ColumnListItem>
+                                <cells>
+                                    <Avatar
+                                        displayShape="Square"
+                                        src="{path: 'attachments>fileDataUrl', formatter: '.formatAttachmentPreviewSrc'}"
+                                        fallbackIcon="{path: 'attachments>fileType', formatter: '.formatAttachmentPreviewIcon'}"
+                                        displaySize="S" />
+                                    <Link
+                                        text="{attachments>fileName}"
+                                        press=".onOpenAttachment"
+                                        enabled="{= !!${path: 'attachments>fileName', targetType: 'any'} }" />
+                                    <Text text="{attachments>fileType}" />
+                                    <Text
+                                        text="{path: 'attachments>fileSize', formatter: '.formatFileSize'}" />
+                                    <Text text="{attachments>createdAt}" />
+                                    <Button
+                                        icon="sap-icon://delete"
+                                        type="Transparent"
+                                        tooltip="Remove file"
+                                        press=".onRemoveAttachment"
+                                        visible="{ui>/isEditable}" />
+                                </cells>
+                            </ColumnListItem>
+                        </table:items>
+                    </table:Table>
                 </Panel>
 
             </VBox>

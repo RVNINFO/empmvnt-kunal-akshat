@@ -1,4 +1,9 @@
+
 using syq_empglobalmobility_srv as service from '../../srv/mif-service';
+
+annotate service.ValueHelp with {
+    ID @Common.Text: name;
+};
 
 annotate service.EmploymentMovement with @Capabilities.DeleteRestrictions: {Deletable: false};
 annotate service.EmploymentMovement with @UI.CreateHidden: true;

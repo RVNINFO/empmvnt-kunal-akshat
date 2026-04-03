@@ -30,7 +30,86 @@ sap.ui.define([
     }
 
     function isUsableModel(oModel) {
-        return !!(oModel && typeof oModel.bindList === 'function' && typeof oModel.submitBatch === 'function');
+        return !!(oModel && typeof oModel.bindList === 'function');
+    }
+
+    function resolveModelFromContext(oContext) {
+        var oModel = null;
+        var oSource;
+
+        // 1) FE action context can directly expose getModel()
+        if (oContext && typeof oContext.getModel === 'function') {
+            try {
+                oModel = oContext.getModel();
+                if (isUsableModel(oModel)) {
+                    return oModel;
+                }
+            } catch (e) {
+                // Continue with fallbacks
+            }
+        }
+
+        // 2) FE extension API wrapper
+        if (oContext && typeof oContext.getExtensionAPI === 'function') {
+            try {
+                var oExtApi = oContext.getExtensionAPI();
+                if (oExtApi && typeof oExtApi.getModel === 'function') {
+                    oModel = oExtApi.getModel();
+                    if (isUsableModel(oModel)) {
+                        return oModel;
+                    }
+                }
+            } catch (e) {
+                // Continue with fallbacks
+            }
+        }
+
+        // 3) Event source model
+        if (oContext && typeof oContext.getSource === 'function') {
+            try {
+                oSource = oContext.getSource();
+                if (oSource && typeof oSource.getModel === 'function') {
+                    oModel = oSource.getModel();
+                    if (isUsableModel(oModel)) {
+                        return oModel;
+                    }
+                }
+            } catch (e) {
+                // Continue with fallbacks
+            }
+        }
+
+        // 3b) Resolve model from owner component of the source control
+        if (oSource && sap.ui && sap.ui.core && sap.ui.core.Component && typeof sap.ui.core.Component.getOwnerComponentFor === 'function') {
+            try {
+                var oOwnerComponent = sap.ui.core.Component.getOwnerComponentFor(oSource);
+                if (oOwnerComponent && typeof oOwnerComponent.getModel === 'function') {
+                    oModel = oOwnerComponent.getModel();
+                    if (isUsableModel(oModel)) {
+                        return oModel;
+                    }
+                }
+            } catch (e) {
+                // Continue with fallbacks
+            }
+        }
+
+        // 4) View/Controller context
+        if (oContext && typeof oContext.getView === 'function') {
+            try {
+                var oView = oContext.getView();
+                if (oView && typeof oView.getModel === 'function') {
+                    oModel = oView.getModel();
+                    if (isUsableModel(oModel)) {
+                        return oModel;
+                    }
+                }
+            } catch (e) {
+                // Continue with fallbacks
+            }
+        }
+
+        return null;
     }
 
     function getI18nModel(oContext) {
@@ -76,19 +155,23 @@ sap.ui.define([
 
     return {
         createMovement: async function (oContext, aSelectedContexts) {
-            // Get the OData model - try multiple approaches
+            // Get the OData model - try context-aware approach first
             var oModel = null;
 
+            oModel = resolveModelFromContext(oContext);
+
             // Approach 1: Get default model from sap.ui.getCore()
-            try {
-                oModel = sap.ui.getCore().getModel('empmovement') || sap.ui.getCore().getModel();
-                if (isUsableModel(oModel)) {
-                    // Success
-                } else {
-                    oModel = null;
+            if (!oModel) {
+                try {
+                    oModel = sap.ui.getCore().getModel('empmovement') || sap.ui.getCore().getModel();
+                    if (isUsableModel(oModel)) {
+                        // Success
+                    } else {
+                        oModel = null;
+                    }
+                } catch (e) {
+                    // Continue to next approach
                 }
-            } catch (e) {
-                // Continue to next approach
             }
 
             // Approach 2: Try from binding context if available
@@ -184,13 +267,23 @@ sap.ui.define([
                         var oListBinding = oModel.bindList('/EmploymentMovement');
                         var oCreatedContext = oListBinding.create(oPayload);
 
-                        await oModel.submitBatch('$auto');
+                        if (typeof oModel.submitBatch === 'function') {
+                            await oModel.submitBatch('$auto');
+                        }
                         await oCreatedContext.created();
 
-                        var sCanonicalPath = await oCreatedContext.requestCanonicalPath();
+                        var sCanonicalPath = null;
+                        if (typeof oCreatedContext.requestCanonicalPath === 'function') {
+                            sCanonicalPath = await oCreatedContext.requestCanonicalPath();
+                        } else if (typeof oCreatedContext.getPath === 'function') {
+                            sCanonicalPath = oCreatedContext.getPath();
+                        }
+
                         oDialog.close();
                         oDialog.destroy();
-                        window.location.hash = sCanonicalPath.replace(/^\//, '');
+                        if (sCanonicalPath) {
+                            window.location.hash = sCanonicalPath.replace(/^\//, '');
+                        }
                     } catch (oError) {
                         MessageBox.error('Create failed: ' + (oError && oError.message ? oError.message : oError));
                     }
