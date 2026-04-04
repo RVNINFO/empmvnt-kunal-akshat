@@ -77,9 +77,6 @@
                             <DatePicker id="dateSubmittedPicker" value="{dateSubmitted}"
                                 editable="false"
                                 visible="{= ${visibility>/fields/dateSubmitted} !== false }" />
-
-                            <Label text="Attach Business Case" />
-                            <Input value="{attachBusinessCase}" editable="{ui>/isEditable}" />
                         </form:content>
                     </form:SimpleForm>
                 </Panel>

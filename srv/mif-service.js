@@ -138,7 +138,6 @@ const EMPTY_EMPLOYMENT_MOVEMENT = {
   movementType_ID: null,
   policy_ID: null,
   formName: null,
-  attachBusinessCase: null,
   dateSubmitted: null,
   estimatedStartDate: null,
   realStartDate: null,
@@ -305,6 +304,14 @@ function _clone(data) {
   return JSON.parse(JSON.stringify(data))
 }
 
+function _getTodayDateString() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 function _findByCode(rows, code) {
   if (!code) return null
   return rows.find((row) => row.code === code) || null
@@ -369,7 +376,8 @@ module.exports = class syq_events_handler_srv extends cds.ApplicationService {
       const newRow = {
         ..._clone(req.data || {}),
         ID: (req.data && req.data.ID) || cds.utils.uuid(),
-        status_code: (req.data && req.data.status_code) || '1'
+        status_code: (req.data && req.data.status_code) || '1',
+        dateSubmitted: (req.data && req.data.dateSubmitted) || _getTodayDateString()
       }
 
       EMPLOYMENT_MOVEMENTS.push(newRow)
@@ -387,13 +395,19 @@ module.exports = class syq_events_handler_srv extends cds.ApplicationService {
         return req.error(404, `Employment Movement with ID ${id} not found`)
       }
 
-      EMPLOYMENT_MOVEMENTS[index] = {
+      const updatedData = _clone(req.data || {})
+      if (!updatedData.dateSubmitted && !EMPLOYMENT_MOVEMENTS[index].dateSubmitted) {
+        updatedData.dateSubmitted = _getTodayDateString()
+      }
+
+      const updated = {
         ...EMPLOYMENT_MOVEMENTS[index],
-        ..._clone(req.data || {}),
+        ...updatedData,
         ID: id
       }
 
-      return EMPLOYMENT_MOVEMENTS[index]
+      EMPLOYMENT_MOVEMENTS[index] = updated
+      return updated
     })
 
     this.on('DELETE', 'EmploymentMovement', async (req) => {

@@ -19,7 +19,6 @@ service syq_empglobalmobility_srv {
         movementType                               : Association to ValueHelp;
         policy                                     : Association to ValueHelp;
         formName                                   : String;
-        attachBusinessCase                         : String(500);
         dateSubmitted                              : Date;
 
         estimatedStartDate                         : Date;

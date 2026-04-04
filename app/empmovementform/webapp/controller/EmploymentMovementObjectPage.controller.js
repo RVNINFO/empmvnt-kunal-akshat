@@ -101,11 +101,20 @@ sap.ui.define([
                 const oObject = await oContext.requestObject();
                 if (!oObject) return;
 
-                const bIsActive = oObject.IsActiveEntity;
+                var bForceEditForNewlyCreated = false;
+                if (window.sessionStorage && oObject.ID) {
+                    var sForceEditId = window.sessionStorage.getItem("empmovementform.forceEditId");
+                    if (sForceEditId && sForceEditId === oObject.ID) {
+                        bForceEditForNewlyCreated = true;
+                        window.sessionStorage.removeItem("empmovementform.forceEditId");
+                    }
+                }
 
-                // active → display
-                // draft → edit
-                this.getView().getModel("ui").setProperty("/isEditable", !bIsActive);
+                const bIsEditable = (oObject.IsActiveEntity === false) || bForceEditForNewlyCreated;
+
+                // Non-draft records open in display mode.
+                // Draft records (IsActiveEntity === false) open in edit mode.
+                this.getView().getModel("ui").setProperty("/isEditable", bIsEditable);
                 this._syncCharacterLimitValueStates(oObject);
                 this._applyDurationValueState(oObject);
                 this._applyVisibilityRules(oObject);
@@ -362,7 +371,7 @@ sap.ui.define([
 
             var sHostCountry = this._resolveHostCountryForRules({
                 hostCountry_code: oContext.getProperty("hostCountry_code"),
-                hostCountry: oContext.getProperty("hostCountry")
+                hostCountry: null
             }, oContext);
 
             this._applyDurationValueState({
@@ -420,7 +429,7 @@ sap.ui.define([
                 var sDuration = (oActiveContext.getProperty("duration") || "").toString();
                 var sHostCountry = this._resolveHostCountryForRules({
                     hostCountry_code: oActiveContext.getProperty("hostCountry_code"),
-                    hostCountry: oActiveContext.getProperty("hostCountry")
+                    hostCountry: null
                 }, oActiveContext);
 
                 var oLast = this._lastDurationRuleDeps || {};
@@ -767,8 +776,7 @@ sap.ui.define([
         _onPopState: function () {
             var bIsEditable = this.getView().getModel("ui").getProperty("/isEditable");
             if (bIsEditable) {
-                window.history.pushState(null, '', window.location.href);
-                this._openCancelDialog({ navBack: true });
+                this._discardPendingChanges();
             }
         },
 
@@ -971,63 +979,44 @@ sap.ui.define([
         onNavBack: function () {
             var bIsEditable = this.getView().getModel("ui").getProperty("/isEditable");
             if (bIsEditable) {
-                this._openCancelDialog({ navBack: true });
+                this._discardPendingChangesAndNavigateBack();
             } else {
                 window.history.back();
             }
         },
 
         onCancel: function () {
-            this._openCancelDialog({ navBack: false });
+            this._discardPendingChangesAndNavigateBack();
         },
 
-        _openCancelDialog: function (oOptions) {
-            // Safety net: never open dialog if not in edit mode
-            var bIsEditable = this.getView().getModel("ui").getProperty("/isEditable");
-            if (!bIsEditable) {
-                window.history.back();
+        _discardPendingChanges: function () {
+            var oContext = this.getView().getBindingContext();
+            if (!oContext) {
                 return;
             }
 
-            this._oCancelDialogOptions = oOptions;
+            var oModel = oContext.getModel();
+            var sUpdateGroupId = "$auto";
+            var oBinding = oContext.getBinding && oContext.getBinding();
+            if (oBinding && typeof oBinding.getUpdateGroupId === "function") {
+                sUpdateGroupId = oBinding.getUpdateGroupId() || "$auto";
+            }
 
-            if (!this._oCancelConfirmDialog) {
-                Fragment.load({
-                    id: this.getView().getId(),
-                    name: "com.syensqo.hr.empmovementform.fragments.CancelConfirmDialog",
-                    controller: this
-                }).then(function (oDialog) {
-                    this._oCancelConfirmDialog = oDialog;
-                    this.getView().addDependent(oDialog);
-                    oDialog.open();
-                }.bind(this));
-            } else {
-                this._oCancelConfirmDialog.open();
+            if (oModel && typeof oModel.hasPendingChanges === "function" && oModel.hasPendingChanges(sUpdateGroupId)) {
+                oModel.resetChanges(sUpdateGroupId);
+            } else if (oModel && typeof oModel.resetChanges === "function") {
+                oModel.resetChanges();
             }
         },
 
-        onConfirmDiscard: async function () {
-            this._oCancelConfirmDialog.close();
-
-            var oContext = this.getView().getBindingContext();
-            if (!oContext) return;
-
+        _discardPendingChangesAndNavigateBack: function () {
             try {
-                const oObject = await oContext.requestObject();
-                if (!oObject.IsActiveEntity) {
-                    await oContext.delete("$auto");
-                }
-
+                this._discardPendingChanges();
                 this.getView().getModel("ui").setProperty("/isEditable", false);
                 window.history.back();
-
             } catch (oError) {
                 MessageBox.error("Discard failed: " + (oError && oError.message ? oError.message : oError));
             }
-        },
-
-        onKeepEditing: function () {
-            this._oCancelConfirmDialog.close();
         },
 
         onDependencyFieldChange: async function (oEvent) {
@@ -1076,7 +1065,6 @@ sap.ui.define([
             if (!oContext) return;
 
             try {
-                await this.editFlow.editDocument(oContext); // creates draft
                 this.getView().getModel("ui").setProperty("/isEditable", true);
             } catch (oError) {
                 MessageBox.error("Edit failed: " + oError.message);
@@ -1334,7 +1322,14 @@ sap.ui.define([
 
             await oContext.setProperty("attachmentsPayload", JSON.stringify(this._buildAttachmentsPayload()));
 
-            this.editFlow.saveDocument(oContext).then(function () {
+            var oModel = oContext.getModel();
+            var sUpdateGroupId = "$auto";
+            var oBinding = oContext.getBinding && oContext.getBinding();
+            if (oBinding && typeof oBinding.getUpdateGroupId === "function") {
+                sUpdateGroupId = oBinding.getUpdateGroupId() || "$auto";
+            }
+
+            oModel.submitBatch(sUpdateGroupId).then(function () {
                 MessageToast.show("Record saved successfully");
                 this.getView().getModel("ui").setProperty("/isEditable", false);
             }.bind(this)).catch(function (oError) {

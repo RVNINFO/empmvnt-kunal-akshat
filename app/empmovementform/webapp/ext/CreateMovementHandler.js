@@ -272,6 +272,14 @@ sap.ui.define([
                         }
                         await oCreatedContext.created();
 
+                        var oCreatedObject = null;
+                        if (typeof oCreatedContext.requestObject === 'function') {
+                            oCreatedObject = await oCreatedContext.requestObject();
+                        }
+                        if (oCreatedObject && oCreatedObject.ID && window.sessionStorage) {
+                            window.sessionStorage.setItem('empmovementform.forceEditId', oCreatedObject.ID);
+                        }
+
                         var sCanonicalPath = null;
                         if (typeof oCreatedContext.requestCanonicalPath === 'function') {
                             sCanonicalPath = await oCreatedContext.requestCanonicalPath();

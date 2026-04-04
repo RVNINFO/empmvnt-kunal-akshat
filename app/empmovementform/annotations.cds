@@ -362,12 +362,7 @@ annotate service.EmploymentMovement with @(
             {
                 $Type: 'UI.DataField',
                 Value: policy.name,
-            },
-            {
-                $Type: 'UI.DataField',
-                Value: attachBusinessCase,
-                Label: '{i18n>AttachBusinessCase}',
-            },
+            }
         ],
     },
     UI.HeaderInfo                    : {
