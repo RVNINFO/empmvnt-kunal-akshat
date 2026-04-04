@@ -89,43 +89,47 @@ const COUNTRY_VH = [
 ]
 
 const VALUE_HELP = [
-  { ID: '6372f2d3-9aff-446a-a564-060ad65b68c5', type: 'cust_movementtype', code: '1', name: 'New Assignment' },
-  { ID: '807a58b2-5616-47f4-a231-c632e011e6b3', type: 'cust_movementtype', code: '2', name: 'Assignment Extension' },
-  { ID: 'fb8c8afd-6064-4875-b897-cfaf70b76202', type: 'cust_movementtype', code: '3', name: 'Repatriation' },
-  { ID: '6a213560-cce6-430e-9dc5-ec0be68c5739', type: 'cust_movementtype', code: '4', name: 'Localisation' },
-  { ID: 'ddb57cd4-6a67-4020-a116-bcacc3d1feeb', type: 'cust_movementtype', code: '5', name: 'One Way Transfer' },
-  { ID: '2b46b420-d4fd-4e5e-8c29-fe09dcda8797', type: 'cust_movementtype', code: '6', name: 'Rotational Program' },
-  { ID: 'e9212f30-2ea0-421b-9262-774d7270ad37', type: 'cust_movementtype', code: '7', name: 'V.I.E' },
-  { ID: 'd7014869-2c87-45a3-97a0-c2b8d927c17c', type: 'cust_movementtype', code: '8', name: 'Ad Hoc' },
-  { ID: '6e505f9e-913b-4e88-ad9c-e15bdd920281', type: 'cust_movementtype', code: '9', name: 'All' },
-  { ID: '8d7c02dd-cc5e-40f3-a632-66a614de8d5b', type: 'cust_policy', code: '1', name: 'LTA Leader & Expert' },
-  { ID: 'aec577e3-63a5-491e-bd46-f04c78ed5d33', type: 'cust_policy', code: '2', name: 'LTA Developmental' },
-  { ID: 'f00220cb-75f7-4d5e-8b2d-0cb57741bf59', type: 'cust_policy', code: '3', name: 'LTA Managerial' },
-  { ID: 'e48ff474-b7fc-423d-9ccc-6cbfaf4dd7f2', type: 'cust_policy', code: '4', name: 'LTA Opportunity' },
-  { ID: 'efb1a464-ce00-4d8e-8650-1e23d17237b5', type: 'cust_policy', code: '5', name: 'STA Explorer' },
-  { ID: '2ee63e39-84f5-4fd8-b2be-d72f8ae5ea80', type: 'cust_policy', code: '6', name: 'New Assignment (EE Driven)' },
-  { ID: 'cdbd445c-f62f-4487-988a-faee967e0bab', type: 'cust_policy', code: '7', name: 'SIPA' },
-  { ID: '418d59af-772e-470f-b8da-fcaef7323e9b', type: 'cust_policy', code: '8', name: 'STA' },
-  { ID: 'be44e7d4-5246-4650-a4c3-a23be9f65a1a', type: 'cust_policy', code: '9', name: 'VIE' },
-  { ID: '24590c2b-eb70-49ec-a6f4-c1c1f9812e59', type: 'cust_policy', code: '10', name: 'One Way Transfer' },
-  { ID: 'fc226776-fcb4-4d84-baed-b55634b135eb', type: 'cust_policy', code: '11', name: 'One Way Transfer (External Hire)' },
-  { ID: 'ef3187cd-4c64-4256-b89e-f9e4b79bc620', type: 'cust_policy', code: '12', name: 'One way transfer (EE Driven)' },
-  { ID: 'fc2427a2-e6f3-4bfa-ac19-50b6393e2e40', type: 'cust_policy', code: '13', name: 'FFF' },
-  { ID: '1a888b16-8973-4c37-bcad-c273c4c1747e', type: 'cust_policy', code: '14', name: 'STIP' },
-  { ID: '9591faad-3b32-402e-b9f9-46b75743bac6', type: 'cust_policy', code: '15', name: 'Ad Hoc' },
-  { ID: 'c9ff534c-cc85-42a5-9713-c04d29a4819e', type: 'cust_program', code: '1', name: 'Foundation for the Future' },
-  { ID: 'ba19f2c8-32eb-48ca-a2ea-465b195d236d', type: 'cust_program', code: '2', name: 'Syensqo Talent Immersion Program' },
-  { ID: 'fc858441-cd77-420c-b058-e9294b5df92f', type: 'cust_phase', code: '1', name: '1st Rotation' },
-  { ID: '7c723a9f-bcb9-45d9-8df3-b4bdc1139b04', type: 'cust_phase', code: '2', name: '2nd Rotation' },
-  { ID: '4cb27c8c-a877-4e54-8386-492b968d2cf2', type: 'cust_phase', code: '3', name: '3rd Rotation' },
-  { ID: 'aa8cdbc2-69bf-4316-91f9-f1dc73c6c18e', type: 'cust_depfamilystatus', code: '1', name: 'Accompanying' },
-  { ID: '1025a2b6-0e29-4976-be73-f8db9930cb8f', type: 'cust_depfamilystatus', code: '2', name: 'Unaccompanied' },
-  { ID: '57798804-2e61-463d-88c9-44213611bf5c', type: 'cust_deppartneremployment', code: '1', name: 'Currently Unemployed' },
-  { ID: '40e352a8-bda4-4f31-bd98-98e97a300c8c', type: 'cust_deppartneremployment', code: '2', name: 'Currently Working' },
-  { ID: '9a27f528-fdcc-437f-9292-871efc37f770', type: 'cust_deppartneremployment', code: '3', name: 'Plans to work at the new location (relevant only for LTA Leader & Expert)' },
-  { ID: '5fec0b23-08a7-4cf5-877b-abdb317f9585', type: 'cust_deppartneremployment', code: '4', name: 'Employed at Syensqo' },
-  { ID: '347f87d5-474f-47b8-a67f-5ce8fa2addb4', type: 'cust_deppartneremployment', code: '5', name: 'Not Applicable' }
+  { type: '1', code: '1', name: 'New Assignment' },
+  { type: '1', code: '2', name: 'Assignment Extension' },
+  { type: '1', code: '3', name: 'Repatriation' },
+  { type: '1', code: '4', name: 'Localisation' },
+  { type: '1', code: '5', name: 'One Way Transfer' },
+  { type: '1', code: '6', name: 'Rotational Program' },
+  { type: '1', code: '7', name: 'V.I.E' },
+  { type: '1', code: '8', name: 'Ad Hoc' },
+  { type: '1', code: '9', name: 'All' },
+  { type: '2', code: '1', name: 'LTA Leader & Expert' },
+  { type: '2', code: '2', name: 'LTA Developmental' },
+  { type: '2', code: '3', name: 'LTA Managerial' },
+  { type: '2', code: '4', name: 'LTA Opportunity' },
+  { type: '2', code: '5', name: 'STA Explorer' },
+  { type: '2', code: '6', name: 'New Assignment (EE Driven)' },
+  { type: '2', code: '7', name: 'SIPA' },
+  { type: '2', code: '8', name: 'STA' },
+  { type: '2', code: '9', name: 'VIE' },
+  { type: '2', code: '10', name: 'One Way Transfer' },
+  { type: '2', code: '11', name: 'One Way Transfer (External Hire)' },
+  { type: '2', code: '12', name: 'One way transfer (EE Driven)' },
+  { type: '2', code: '13', name: 'FFF' },
+  { type: '2', code: '14', name: 'STIP' },
+  { type: '2', code: '15', name: 'Ad Hoc' },
+  { type: '3', code: '1', name: 'Foundation for the Future' },
+  { type: '3', code: '2', name: 'Syensqo Talent Immersion Program' },
+  { type: '4', code: '1', name: '1st Rotation' },
+  { type: '4', code: '2', name: '2nd Rotation' },
+  { type: '4', code: '3', name: '3rd Rotation' },
+  { type: '5', code: '1', name: 'Accompanying' },
+  { type: '5', code: '2', name: 'Unaccompanied' },
+  { type: '6', code: '1', name: 'Currently Unemployed' },
+  { type: '6', code: '2', name: 'Currently Working' },
+  { type: '6', code: '3', name: 'Plans to work at the new location (relevant only for LTA Leader & Expert)' },
+  { type: '6', code: '4', name: 'Employed at Syensqo' },
+  { type: '6', code: '5', name: 'Not Applicable' }
 ]
+
+VALUE_HELP.forEach((row) => {
+  row.ID = `${row.name} (${row.code})`
+})
 
 const EMPLOYMENT_MOVEMENTS = []
 
@@ -243,8 +247,8 @@ function _applyWhereFilter(rows, req) {
     return clauses.every(({ left, op, right }) => {
       const leftRef = _toRef(left)
       const rightRef = _toRef(right)
-      const leftValue = leftRef ? row[leftRef] : _toLiteral(left)
-      const rightValue = rightRef ? row[rightRef] : _toLiteral(right)
+      let leftValue = leftRef ? row[leftRef] : _toLiteral(left)
+      let rightValue = rightRef ? row[rightRef] : _toLiteral(right)
 
       if (op === '=') {
         return String(leftValue) === String(rightValue)

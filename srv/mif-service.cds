@@ -119,7 +119,7 @@ service syq_empglobalmobility_srv {
 
     @cds.persistence.skip
     entity ValueHelp {
-        key ID   : UUID;
+        key ID   : String(32);
             type : String(50);
             code : String(100);
             name : String(200);

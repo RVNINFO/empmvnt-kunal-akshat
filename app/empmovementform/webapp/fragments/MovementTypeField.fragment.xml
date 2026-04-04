@@ -1,10 +1,10 @@
 <core:FragmentDefinition
     xmlns:core="sap.ui.core"
-    xmlns:macros="sap.fe.macros">
-    <macros:Field
-        id="movementTypeMacroField"
-        metaPath="/EmploymentMovement/movementType_ID"
+    xmlns:mdc="sap.ui.mdc">
+    <mdc:Field
+        id="movementTypeField"
         value="{movementType_ID}"
-        description="{movementType/name}"
-        readOnly="{= !${ui>/isEditable} }" />
+        display="Description"
+        editMode="{= ${ui>/isEditable} ? 'Editable' : 'Display' }"
+        valueHelp="movementTypeValueHelp" />
 </core:FragmentDefinition>

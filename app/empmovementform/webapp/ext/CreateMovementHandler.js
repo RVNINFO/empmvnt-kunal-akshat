@@ -21,7 +21,7 @@ sap.ui.define([
     function bindMovementTypeItems(oSelect) {
         oSelect.bindItems({
             path: '/ValueHelp',
-            filters: [new Filter('type', FilterOperator.EQ, 'cust_movementtype')],
+            filters: [new Filter('type', FilterOperator.EQ, '1')],
             template: new Item({
                 key: '{ID}',
                 text: '{name}'

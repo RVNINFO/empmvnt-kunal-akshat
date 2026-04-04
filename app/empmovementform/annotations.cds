@@ -1,4 +1,3 @@
-
 using syq_empglobalmobility_srv as service from '../../srv/mif-service';
 
 annotate service.ValueHelp with {
@@ -428,7 +427,7 @@ annotate service.EmploymentMovement with {
                 {
                     $Type            : 'Common.ValueListParameterConstant',
                     ValueListProperty: 'type',
-                    Constant         : 'cust_movementtype'
+                    Constant         : '1'
                 }
             ]
         }
@@ -458,7 +457,7 @@ annotate service.EmploymentMovement with {
                 {
                     $Type            : 'Common.ValueListParameterConstant',
                     ValueListProperty: 'type',
-                    Constant         : 'cust_policy'
+                    Constant         : '2'
                 }
             ]
         }
@@ -488,7 +487,7 @@ annotate service.EmploymentMovement with {
                 {
                     $Type            : 'Common.ValueListParameterConstant',
                     ValueListProperty: 'type',
-                    Constant         : 'cust_program'
+                    Constant         : '3'
                 }
             ]
         }
@@ -518,7 +517,7 @@ annotate service.EmploymentMovement with {
                 {
                     $Type            : 'Common.ValueListParameterConstant',
                     ValueListProperty: 'type',
-                    Constant         : 'cust_phase'
+                    Constant         : '4'
                 }
             ]
         }
@@ -632,7 +631,7 @@ annotate service.EmploymentMovement with {
                 {
                     $Type            : 'Common.ValueListParameterConstant',
                     ValueListProperty: 'type',
-                    Constant         : 'cust_depfamilystatus'
+                    Constant         : '5'
                 }
             ]
         }
@@ -662,7 +661,7 @@ annotate service.EmploymentMovement with {
                 {
                     $Type            : 'Common.ValueListParameterConstant',
                     ValueListProperty: 'type',
-                    Constant         : 'cust_deppartneremployment'
+                    Constant         : '6'
                 }
             ]
         }

@@ -91,6 +91,8 @@ sap.ui.define([
             this.getView().setModel(this._attachmentsModel, "attachments");
             this.getView().setModel(new JSONModel({ reason: "" }), "cancelRequestDialog");
 
+            this._loadMovementTypeValueHelp();
+
             this._loadVisibilityRules();
 
             this.getView().attachModelContextChange(async function () {
@@ -160,6 +162,23 @@ sap.ui.define([
                     source: "existing"
                 };
             }));
+        },
+
+        _loadMovementTypeValueHelp: function () {
+            if (this._movementTypeValueHelpPromise) {
+                return this._movementTypeValueHelpPromise;
+            }
+
+            this._movementTypeValueHelpPromise = Fragment.load({
+                id: this.getView().getId(),
+                name: "com.syensqo.hr.empmovementform.fragments.MovementTypeValueHelp",
+                controller: this
+            }).then(function (oValueHelp) {
+                this.getView().addDependent(oValueHelp);
+                return oValueHelp;
+            }.bind(this));
+
+            return this._movementTypeValueHelpPromise;
         },
 
         _buildAttachmentsPayload: function () {

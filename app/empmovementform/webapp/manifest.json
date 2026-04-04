@@ -64,6 +64,7 @@
         "sap.ui.unified": {},
         "sap.ui.core": {},
         "sap.ui.layout": {},
+        "sap.ui.mdc": {},
         "sap.fe.core": {},
         "sap.fe.macros": {},
         "sap.fe.templates": {}
