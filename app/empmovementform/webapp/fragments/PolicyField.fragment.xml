@@ -1,10 +1,10 @@
 <core:FragmentDefinition
     xmlns:core="sap.ui.core"
-    xmlns:macros="sap.fe.macros">
-    <macros:Field
-        id="policyMacroField"
-        metaPath="/EmploymentMovement/policy_ID"
+    xmlns:mdc="sap.ui.mdc">
+    <mdc:Field
+        id="policyField"
         value="{policy_ID}"
-        description="{policy/name}"
-        readOnly="{= !${ui>/isEditable} }" />
+        display="Description"
+        editMode="{= ${ui>/isEditable} ? 'Editable' : 'Display' }"
+        valueHelp="policyValueHelp" />
 </core:FragmentDefinition>

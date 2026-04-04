@@ -91,7 +91,7 @@ sap.ui.define([
             this.getView().setModel(this._attachmentsModel, "attachments");
             this.getView().setModel(new JSONModel({ reason: "" }), "cancelRequestDialog");
 
-            this._loadMovementTypeValueHelp();
+            this._loadValueHelpDependencies();
 
             this._loadVisibilityRules();
 
@@ -164,21 +164,35 @@ sap.ui.define([
             }));
         },
 
-        _loadMovementTypeValueHelp: function () {
-            if (this._movementTypeValueHelpPromise) {
-                return this._movementTypeValueHelpPromise;
+        _loadValueHelpDependencies: function () {
+            if (this._valueHelpDependenciesPromise) {
+                return this._valueHelpDependenciesPromise;
             }
 
-            this._movementTypeValueHelpPromise = Fragment.load({
-                id: this.getView().getId(),
-                name: "com.syensqo.hr.empmovementform.fragments.MovementTypeValueHelp",
-                controller: this
-            }).then(function (oValueHelp) {
-                this.getView().addDependent(oValueHelp);
-                return oValueHelp;
-            }.bind(this));
+            var aFragments = [
+                "MovementTypeValueHelp",
+                "PolicyValueHelp",
+                "ProgramValueHelp",
+                "PhaseValueHelp",
+                "CountryValueHelp",
+                "CountryOfBirthValueHelp",
+                "HostCountryValueHelp",
+                "FamilyStatusValueHelp",
+                "PartnerEmploymentValueHelp"
+            ];
 
-            return this._movementTypeValueHelpPromise;
+            this._valueHelpDependenciesPromise = Promise.all(aFragments.map(function (sFragmentName) {
+                return Fragment.load({
+                    id: this.getView().getId(),
+                    name: "com.syensqo.hr.empmovementform.fragments." + sFragmentName,
+                    controller: this
+                }).then(function (oValueHelp) {
+                    this.getView().addDependent(oValueHelp);
+                    return oValueHelp;
+                }.bind(this));
+            }.bind(this)));
+
+            return this._valueHelpDependenciesPromise;
         },
 
         _buildAttachmentsPayload: function () {

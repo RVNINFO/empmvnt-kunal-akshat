@@ -1,11 +1,11 @@
 <core:FragmentDefinition
     xmlns:core="sap.ui.core"
-    xmlns:macros="sap.fe.macros">
-    <macros:Field
-        id="partnerEmploymentMacroField"
-        metaPath="/EmploymentMovement/partnerEmployment_ID"
+    xmlns:mdc="sap.ui.mdc">
+    <mdc:Field
+        id="partnerEmploymentField"
         value="{partnerEmployment_ID}"
-        description="{partnerEmployment/name}"
-        visible="{= ${visibility>/fields/partnerEmployment_ID} !== false }"
-        readOnly="{= !${ui>/isEditable} }" />
+        display="Description"
+        editMode="{= ${ui>/isEditable} ? 'Editable' : 'Display' }"
+        valueHelp="partnerEmploymentValueHelp"
+        visible="{= ${visibility>/fields/partnerEmployment_ID} !== false }" />
 </core:FragmentDefinition>

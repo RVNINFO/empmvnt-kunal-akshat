@@ -10,8 +10,8 @@
             <mdcvh:Popover id="movementTypeValueHelpPopover">
                 <mdcValueHelpContent:MTable
                     id="movementTypeValueHelpTable"
-                    keyPath="ID"
-                    descriptionPath="name"
+                        keyPath="ID"
+                        descriptionPath="name"
                     caseSensitive="false"
                     useAsValueHelp="true" />
             </mdcvh:Popover>

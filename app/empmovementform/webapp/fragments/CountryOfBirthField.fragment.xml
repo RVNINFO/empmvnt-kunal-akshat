@@ -1,11 +1,11 @@
 <core:FragmentDefinition
     xmlns:core="sap.ui.core"
-    xmlns:macros="sap.fe.macros">
-    <macros:Field
-        id="countryOfBirthMacroField"
-        metaPath="/EmploymentMovement/countryOfBirth_code"
+    xmlns:mdc="sap.ui.mdc">
+    <mdc:Field
+        id="countryOfBirthField"
         value="{countryOfBirth_code}"
-        description="{countryOfBirth/name}"
-        visible="{= ${visibility>/fields/countryOfBirth_code} !== false }"
-        readOnly="{= !${ui>/isEditable} }" />
+        display="Description"
+        editMode="{= ${ui>/isEditable} ? 'Editable' : 'Display' }"
+        valueHelp="countryOfBirthValueHelp"
+        visible="{= ${visibility>/fields/countryOfBirth_code} !== false }" />
 </core:FragmentDefinition>

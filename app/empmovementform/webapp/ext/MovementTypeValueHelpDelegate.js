@@ -6,9 +6,28 @@ sap.ui.define([
 ], function (ValueHelpDelegate, Filter, FilterOperator, RequestShowContainerReason) {
     "use strict";
 
-    var MovementTypeValueHelpDelegate = Object.assign({}, ValueHelpDelegate);
+    var GenericValueHelpDelegate = Object.assign({}, ValueHelpDelegate);
 
-    MovementTypeValueHelpDelegate.retrieveContent = function (oValueHelp, oContainer) {
+    function getPayload(oValueHelp) {
+        return oValueHelp && typeof oValueHelp.getPayload === "function" ? oValueHelp.getPayload() : {};
+    }
+
+    function getCollectionPath(oValueHelp) {
+        var oPayload = getPayload(oValueHelp);
+        return oPayload.collectionPath || "/ValueHelp";
+    }
+
+    function getKeyPath(oValueHelp) {
+        var oPayload = getPayload(oValueHelp);
+        return oPayload.keyPath || "ID";
+    }
+
+    function getDescriptionPath(oValueHelp) {
+        var oPayload = getPayload(oValueHelp);
+        return oPayload.descriptionPath || "name";
+    }
+
+    GenericValueHelpDelegate.retrieveContent = function (oValueHelp, oContainer) {
         var aContent = oContainer.getContent();
         var oContent = aContent[0];
 
@@ -29,6 +48,9 @@ sap.ui.define([
                 var oDomRef = oField && oField.getDomRef && oField.getDomRef();
                 var sWidth = oDomRef && oDomRef.clientWidth ? oDomRef.clientWidth + "px" : "100%";
                 var sTableId = oContainer.getId() + "-Table";
+                var sCollectionPath = getCollectionPath(oValueHelp);
+                var sKeyPath = getKeyPath(oValueHelp);
+                var sDescriptionPath = getDescriptionPath(oValueHelp);
 
                 var oTable = new Table(sTableId, {
                     width: sWidth,
@@ -44,16 +66,15 @@ sap.ui.define([
                         })
                     ],
                     items: {
-                        path: "/ValueHelp",
-                        filters: [new Filter("type", FilterOperator.EQ, "1")],
+                        path: sCollectionPath,
                         template: new ColumnListItem(sTableId + "-item", {
                             type: "Active",
                             cells: [
                                 new Text(sTableId + "-item-code", {
-                                    text: { path: "code", type: new StringType({}, { maxLength: 100 }) }
+                                    text: { path: sKeyPath, type: new StringType({}, { maxLength: 100 }) }
                                 }),
                                 new Text(sTableId + "-item-name", {
-                                    text: { path: "name", type: new StringType({}, { maxLength: 200 }) }
+                                    text: { path: sDescriptionPath, type: new StringType({}, { maxLength: 200 }) }
                                 })
                             ]
                         })
@@ -66,16 +87,17 @@ sap.ui.define([
         });
     };
 
-    MovementTypeValueHelpDelegate.updateBindingInfo = function (oValueHelp, oContent, oBindingInfo) {
+    GenericValueHelpDelegate.updateBindingInfo = function (oValueHelp, oContent, oBindingInfo) {
         ValueHelpDelegate.updateBindingInfo(oValueHelp, oContent, oBindingInfo);
 
-        var oPayload = oValueHelp.getPayload && oValueHelp.getPayload();
-        if (oPayload && oPayload.typeFilter) {
-            oBindingInfo.filters = oBindingInfo.filters || [];
+        var oPayload = getPayload(oValueHelp);
+        oBindingInfo.filters = oBindingInfo.filters || [];
+
+        if (oPayload.typeFilter) {
             oBindingInfo.filters.push(new Filter("type", FilterOperator.EQ, oPayload.typeFilter));
         }
 
-        if (oPayload && oPayload.searchKeys) {
+        if (oPayload.searchKeys) {
             var aFilters = oPayload.searchKeys.map(function (sPath) {
                 return new Filter({
                     path: sPath,
@@ -86,19 +108,18 @@ sap.ui.define([
             });
             var oSearchFilter = aFilters.length ? new Filter(aFilters, false) : null;
             if (oSearchFilter) {
-                oBindingInfo.filters = oBindingInfo.filters || [];
                 oBindingInfo.filters.push(oSearchFilter);
             }
         }
     };
 
-    MovementTypeValueHelpDelegate.isSearchSupported = function (oValueHelp) {
-        var oPayload = oValueHelp.getPayload && oValueHelp.getPayload();
+    GenericValueHelpDelegate.isSearchSupported = function (oValueHelp) {
+        var oPayload = getPayload(oValueHelp);
         return !!(oPayload && oPayload.searchKeys);
     };
 
-    MovementTypeValueHelpDelegate.requestShowContainer = function (oValueHelp, oContainer, sRequestShowContainerReason) {
-        var oPayload = oValueHelp.getPayload && oValueHelp.getPayload();
+    GenericValueHelpDelegate.requestShowContainer = function (oValueHelp, oContainer, sRequestShowContainerReason) {
+        var oPayload = getPayload(oValueHelp);
         if (sRequestShowContainerReason === RequestShowContainerReason.Tap) {
             return !!(oPayload && oPayload.openOnClick);
         }
@@ -108,5 +129,5 @@ sap.ui.define([
         return ValueHelpDelegate.requestShowContainer.apply(this, arguments);
     };
 
-    return MovementTypeValueHelpDelegate;
+    return GenericValueHelpDelegate;
 });

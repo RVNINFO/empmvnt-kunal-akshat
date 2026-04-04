@@ -1,0 +1,20 @@
+<core:FragmentDefinition
+    xmlns:core="sap.ui.core"
+    xmlns:mdc="sap.ui.mdc"
+    xmlns:mdcvh="sap.ui.mdc.valuehelp"
+    xmlns:mdcValueHelpContent="sap.ui.mdc.valuehelp.content">
+    <mdc:ValueHelp
+        id="policyValueHelp"
+        delegate='{"name":"com/syensqo/hr/empmovementform/ext/MovementTypeValueHelpDelegate","payload":{"collectionPath":"/ValueHelp","keyPath":"ID","descriptionPath":"name","searchKeys":["code","name"],"typeFilter":"2","openOnClick":true,"openOnTab":true}}'>
+        <mdc:typeahead>
+            <mdcvh:Popover id="policyValueHelpPopover">
+                <mdcValueHelpContent:MTable
+                    id="policyValueHelpTable"
+                    keyPath="ID"
+                    descriptionPath="name"
+                    caseSensitive="false"
+                    useAsValueHelp="true" />
+            </mdcvh:Popover>
+        </mdc:typeahead>
+    </mdc:ValueHelp>
+</core:FragmentDefinition>
